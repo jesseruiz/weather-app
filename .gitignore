@@ -49,3 +49,6 @@ dist/
 .npm/
 .cache/
 
+# Ignore the testing directory
+/testing/
+
