@@ -1,0 +1,51 @@
+# =============================
+# Global
+# =============================
+.DS_Store
+.env
+.env.*
+*.log
+*.bak
+*.tmp
+.vscode/
+.idea/
+
+# =============================
+# React Frontend
+# =============================
+/frontend/node_modules/
+/frontend/build/
+/frontend/dist/
+/frontend/.cache
+/frontend/.eslintcache
+/frontend/.stylelintcache
+
+# =============================
+# Python Lambdas
+# =============================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+venv/
+.env/
+.pytest_cache/
+.mypy_cache/
+__pycache__/
+build/
+dist/
+*.egg
+*.egg-info/
+
+# AWS Lambda build artifacts (if applicable)
+*.zip
+
+# =============================
+# Other tooling
+# =============================
+/coverage/
+.npm/
+.cache/
+
