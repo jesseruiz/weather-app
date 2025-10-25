@@ -1,0 +1,102 @@
+/* ==== CSS RESET / NORMALIZATION ==== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+/* ==== BASE THEME VARIABLES ==== */
+:root {
+  --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-size: 16px;
+
+  --color-bg: #121212;
+  --color-text: #f0f0f0;
+  --color-link: #58a6ff;
+  --color-link-hover: #1f6feb;
+  --color-primary: #1f1f1f;
+  --color-accent: #272727;
+  --color-border: #333;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ==== BODY ==== */
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==== LINKS ==== */
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+/* ==== HEADINGS ==== */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+}
+
+/* ==== BUTTON ==== */
+button {
+  font: inherit;
+  background-color: var(--color-accent);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: var(--color-primary);
+}
+
+/* ==== INPUT ==== */
+input, textarea {
+  font: inherit;
+  color: var(--color-text);
+  background-color: var(--color-accent);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+/* ==== LAYOUT HELPERS ==== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* ==== UTILITY CLASSES ==== */
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+

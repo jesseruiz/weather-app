@@ -1,0 +1,42 @@
+/* Style the entire nav container */
+nav {
+  background-color: #333;
+  padding: 1.25rem;
+}
+
+/* Remove default list styles */
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+}
+
+/* Style list items */
+nav li {
+  margin: 0;
+}
+
+nav li.logo {
+  margin-right: auto;
+}
+
+
+/* Style the links */
+nav a {
+  color: white;
+  text-decoration: none;
+  font-size: x-large;
+  padding: 1rem 2rem;
+  transition: background-color 0.3s ease;
+  border-radius: 4px;
+}
+
+/* Change color on hover */
+nav a:hover {
+  background-color: #F9980B;
+  color: white;
+}
+

@@ -1,0 +1,63 @@
+.home {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-direction: column;
+  min-height: 75vh;
+  padding-top: 5rem;
+}
+
+.mainHeader {
+  font-size: 3rem;
+}
+
+.submitField {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.inputField {
+  width: 250px;
+  height: 55px;
+}
+
+.submitButton:hover {
+background-color: #F9980B;
+color: white;
+}
+.responseContent {
+display: flex;
+flex-direction: column; /* Lottie and result side by side */
+align-items: center;
+position: relative; /* allows proper positioning of Lottie if needed */
+}
+
+.result {
+font-size: 1.2rem;
+font-weight: bold;
+}
+
+.weather-lottie-background {
+width: 300px;
+height: 300px;
+z-index: 1; /* adjust as needed */
+position: relative;
+}
+
+.alert-container.heat {
+color: white;
+}
+
+.alert-container.rain {
+color: white;
+}
+
+.alert-container.windy {
+color: white;
+}
+
+.alert-container.error {
+background: #ffe0e0;
+color: darkred;
+}

@@ -1,0 +1,59 @@
+import { useAuthenticator } from '@aws-amplify/ui-react';
+import { AccountSettings } from '@aws-amplify/ui-react';
+import { useNavigate } from 'react-router';
+import { useState } from 'react';
+
+
+
+export default function Dashboard() {
+    const { authStatus, user } = useAuthenticator((authState) => [authState.authStatus, authState.user]);
+    const [result, setResult] = useState("");
+    const navigate = useNavigate();
+
+    const handleSuccess = () => {
+        alert('user has been successfully deleted')
+    }
+
+    const handleClick = () => {
+      navigate('/Update-Password'); // Navigate to the dashboard page
+    };
+
+    const manageAlerts = () => {
+        navigate('/Manage-Alerts');
+    };
+
+    async function updateUser(){
+        const user_id = user.username
+        const response = await fetch(
+            `https://raj8a28np4.execute-api.us-east-1.amazonaws.com/update_user?id=${encodeURIComponent(user_id)}`
+          );
+          const text = await response.text();    
+          setResult(text)
+
+    }
+    return (
+      <div className="dashboard">
+        <h1 className="dashboard-header">Account Dashboard</h1>
+        <div>
+            <h3>Change Subscription</h3>
+            <button onClick={updateUser}>Change subscription</button>
+            <p>{result}</p>
+        </div>
+        <div>
+            <h3>Update Email</h3>
+        </div>
+        <div>
+            <h3>Manage Weather Alerts</h3>
+            <button onClick={manageAlerts}>Manage Alerts</button>
+        </div>
+        <div>
+            <h3>Update Password</h3>
+            <button onClick={handleClick}>Update Password?</button>
+        </div>
+        <div>
+            <h3>Delete Account</h3>
+            <AccountSettings.DeleteUser onSuccess={handleSuccess} />
+        </div>
+      </div>
+    );
+  }
