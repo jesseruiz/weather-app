@@ -41,6 +41,6 @@ jobs:
 
     - name: Sync build folder to S3
       run: |
-        aws s3 sync build/ s3://YOUR_BUCKET_NAME/ --delete
+        aws s3 sync html/dist/ s3://weatheralertsapp --delete
 
     
