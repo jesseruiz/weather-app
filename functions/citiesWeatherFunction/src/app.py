@@ -2,13 +2,33 @@ import requests
 import boto3
 from geopy.geocoders import Nominatim
 from datetime import datetime
+from boto3.dynamodb.conditions import Key
+
+
+#Ultimately will scan user db table for cities and get weather for each
 
 # Setup DynamoDB table resource
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('weather-app-cities')
 
 # Cities to process
-CITIES = {'Los Angeles', 'New York City', 'Chicago', 'Houston', 'Seattle', 'Nashville', 'Miami'}
+cities = set()
+
+def get_cities():
+    try:
+        response = table.scan(
+            ProjectionExpression='city'  # Only get the city attribute
+        )
+
+        for item in response.get('Items'):
+            cities.add(item['city'])
+
+        return list(cities)
+
+
+    except Exception as e:
+        print(f"Error with DynamoDB scan: {e}")
+
 
 # Geolocator setup
 geolocator = Nominatim(user_agent="weather_app")
@@ -45,13 +65,17 @@ def get_weather(lat, long, city):
 
         store_weather_data_daily(city, temperature, wind_speed, rain_probability)
 
-        weekly_forecast = data["properties"]["periods"][1:6]
-        for day in weekly_forecast:
-            formatted_forecast = []
+        weekly_forecast = data["properties"]["periods"]
+        filtered_periods = [weekly_forecast[0]] + [p for p in weekly_forecast[1:] if p.get("isDaytime")]
+        filtered_periods = filtered_periods[:7]
+        print('Filtered')
+        print(filtered_periods)
+        formatted_forecast = []
+        for day in filtered_periods:
 
-            rain_probability = daily_forecast['probabilityOfPrecipitation']['value']
-            wind_speed = daily_forecast["windSpeed"]
-            temperature = daily_forecast["temperature"]
+            rain_probability = day['probabilityOfPrecipitation']['value']
+            wind_speed = day["windSpeed"]
+            temperature = day["temperature"]
 
             formatted_forecast.append({
                 'day': day['name'],
@@ -60,14 +84,16 @@ def get_weather(lat, long, city):
                 'windSpeed': wind_speed,
                 'rainProbability': rain_probability,
             })
-
-            store_weather_data_weekly(city, formatted_forecast)
+            print(formatted_forecast)
+        
+        store_weather_data_weekly(city, formatted_forecast)
 
     except (requests.exceptions.RequestException, KeyError) as e:
         print(f"Weather unavailable for {city}. Error: {e}")
 
 
 def store_weather_data_daily(city, temperature, wind_speed, rain_probability):
+    print('Starting')
     table.put_item(
         Item={
             'city': city,
@@ -81,19 +107,23 @@ def store_weather_data_daily(city, temperature, wind_speed, rain_probability):
         }
     )
 
-def store_weather_data_weekly(city, forcast):
+def store_weather_data_weekly(city, forecast):
     table.put_item(
         Item={
             'city': city,
             'forecastType': 'weekly',
             'timestamp': datetime.utcnow().isoformat(),
-            'weeklyForecast': forcast
+            'weeklyForecast': forecast
         }
     )
 
 
 def lambda_handler(event, context):
-    for city in CITIES:
+
+    get_cities()
+
+
+    for city in cities:
         lat, long = get_city_coordinates(city)
         if lat and long:
             get_weather(lat, long, city)

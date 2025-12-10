@@ -1,56 +1,96 @@
-import boto3
 import json
+import boto3
+
+
+#Need function to update city, email/text preferences, alert frequency
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('weather-app-table')
 
-def checkUserSub(user_id):
-    response = table.get_item(
-        Key={'id': user_id}
-    )
-
-    if 'Item' not in response:
-        raise ValueError(f"User with id {user_id} not found.")
-
-    return response['Item']['subscription']
-
 def lambda_handler(event, context):
-    query_params = event.get("queryStringParameters") or {}
-    user_id = query_params.get("id")
-
-    if not user_id:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({'error': 'Missing user id'})
-        }
-
-    try:
-        subscription = checkUserSub(user_id)
-
-        if subscription == 'basic':
-            new_subscription = 'premium'
-        else:
-            new_subscription = 'basic'
-
-        table.update_item(
-            Key={'id': user_id},
-            UpdateExpression='SET subscription = :val1',
-            ExpressionAttributeValues={':val1': new_subscription}
-        )
-
+    # CORS headers
+    headers = {
+        'Access-Control-Allow-Origin': '*',  # Update with your domain in production
+        'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+        'Access-Control-Allow-Methods': 'POST,OPTIONS',
+        'Content-Type': 'application/json'
+    }
+    
+    # Handle preflight OPTIONS request
+    if event.get('httpMethod') == 'OPTIONS':
         return {
             'statusCode': 200,
-            "headers": {
-                "Access-Control-Allow-Origin": "*",  # or specific origin
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
-            },
-            'body': json.dumps({'message': f'User {user_id} subscription changed to {new_subscription}'})
+            'headers': headers,
+            'body': ''
         }
-
+    
+    try:
+        # Parse the request body
+        body = json.loads(event['body'])
+        
+        city = body.get('city')
+        alerts = body.get('alertsEnabled')
+        alerts_email = body.get('emailEnable')
+        alerts_text = body.get('textEnable')
+        alert_frequency = body.get('alertFrequency')
+        user_id = body.get('userId')
+        
+        # Validate required fields
+        if not user_id:
+            return {
+                'statusCode': 400,
+                'headers': headers,
+                'body': json.dumps({
+                    'error': 'Missing required field: userId'
+                })
+            }
+        
+        # Update the item in DynamoDB
+        response = table.update_item(
+            Key={
+                'id': user_id
+            },
+            UpdateExpression='SET city = :city, alerts = :alerts, alerts_email = :alerts_email, alerts_text = :alerts_text, alert_frequency = :alert_frequency',
+            ExpressionAttributeValues={
+                ':city': city,
+                ':alerts': alerts,
+                ':alerts_email': alerts_email,
+                ':alerts_text': alerts_text,
+                ':alert_frequency': alert_frequency
+            },
+            ReturnValues='ALL_NEW'
+        )
+        
+        # Convert Decimal types to float for JSON serialization
+        attributes = json.loads(json.dumps(response['Attributes'], default=str))
+        
+        return {
+            'statusCode': 200,
+            'headers': headers,
+            'body': json.dumps({
+                'message': 'User settings updated successfully',
+                'data': attributes
+            })
+        }
+        
+    except KeyError as e:
+        print(f'Missing key in event: {e}')
+        return {
+            'statusCode': 400,
+            'headers': headers,
+            'body': json.dumps({
+                'error': 'Invalid request format',
+                'details': str(e)
+            })
+        }
+        
     except Exception as e:
-        print(f"Error: {e}")
+        print(f'Error updating user: {e}')
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': str(e)})
+            'headers': headers,
+            'body': json.dumps({
+                'error': 'Failed to update user settings',
+                'details': str(e)
+            })
         }
