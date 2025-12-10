@@ -1,0 +1,79 @@
+.weekly-forecast {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    font-family: system-ui, sans-serif;
+    color: #333;
+  }
+  
+  .forecast-title {
+    margin-bottom: 20px;
+    color: white;
+  }
+  
+  /* Row of cards */
+  .forecast-card-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 1200px;
+  }
+  
+  /* Each card */
+  .forecast-card {
+    background: #f7f7f7;
+    border-radius: 10px;
+    width: 150px;
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  
+  .forecast-card:hover {
+    transform: translateY(-3px);
+    background: #e9f2ff;
+  }
+  
+  .forecast-card.selected {
+    background: #F9980B;
+    color: #fff;
+    transform: translateY(-3px);
+  }
+  
+  .day-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .weather-icon-placeholder {
+    width: 40px;
+    height: 40px;
+    background: #ddd;
+    border-radius: 50%;
+    margin-bottom: 8px;
+  }
+  
+  .temp-placeholder {
+    font-size: 1.1rem;
+  }
+  
+  /* Bottom detail box */
+  .forecast-detail {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    padding: 20px 30px;
+    width: 90%;
+    max-width: 700px;
+    text-align: center;
+  }
+  

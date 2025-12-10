@@ -2,6 +2,8 @@ import requests, re
 import boto3
 from geopy.geocoders import Nominatim
 
+#To update to scan db for city weather first, if not there then make api call
+
 WIND_ALERT_THRESHOLD = 25
 RAIN_ALERT_THRESHOLD = 50
 HEAT_ALERT_THRESHOLD = 102

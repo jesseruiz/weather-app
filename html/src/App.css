@@ -40,3 +40,70 @@ nav a:hover {
   color: white;
 }
 
+/* ===== AMPLIFY AUTHENTICATOR STYLING ===== */
+
+/* Center the authenticator on the page */
+[data-amplify-authenticator] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8em;
+}
+
+/* Remove the "Welcome Back" text */
+[data-amplify-authenticator]::before {
+  display: none;
+}
+
+[data-amplify-authenticator] .amplify-visually-hidden {
+  display: none;
+}
+
+[data-amplify-authenticator] .amplify-tabs__item {
+  background-color: #333;
+  color: white;
+  padding-right: 30px;
+}
+
+[data-amplify-authenticator] .amplify-tabs__item--active {
+  background-color: #F9980B;
+  color: white;
+}
+
+[data-amplify-authenticator] .amplify-flex {
+  border: none;
+  background-color: #333;
+}
+
+[data-amplify-authenticator] .amplify-field {
+  margin-top: 1rem;
+}
+
+[data-amplify-authenticator] .amplify-button--primary {
+  background-color: #F9980B;
+  color: white;
+}
+
+[data-amplify-authenticator] .amplify-textfield {
+  padding-left: 5px;
+}
+
+[data-amplify-authenticator] .amplify-field-group--horizontal {
+  display: flex;
+}
+
+[data-amplify-authenticator] .amplify-field__show-password {
+  background: transparent;
+}
+
+[data-amplify-authenticator] .amplify-button--primary {
+  margin-left: 3rem;
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+[data-amplify-authenticator] .amplify-button--link {
+  background: transparent;
+  font-size: small;
+  margin-left: 2.5rem;
+}

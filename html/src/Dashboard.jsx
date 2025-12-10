@@ -3,7 +3,9 @@ import { AccountSettings } from '@aws-amplify/ui-react';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
 
-
+/* 
+Need to update account deletion to redirect to home
+*/
 
 export default function Dashboard() {
     const { authStatus, user } = useAuthenticator((authState) => [authState.authStatus, authState.user]);
@@ -12,6 +14,7 @@ export default function Dashboard() {
 
     const handleSuccess = () => {
         alert('user has been successfully deleted')
+        navigate('/')
     }
 
     const handleClick = () => {
@@ -22,23 +25,9 @@ export default function Dashboard() {
         navigate('/Manage-Alerts');
     };
 
-    async function updateUser(){
-        const user_id = user.username
-        const response = await fetch(
-            `https://raj8a28np4.execute-api.us-east-1.amazonaws.com/update_user?id=${encodeURIComponent(user_id)}`
-          );
-          const text = await response.text();    
-          setResult(text)
-
-    }
     return (
       <div className="dashboard">
         <h1 className="dashboard-header">Account Dashboard</h1>
-        <div>
-            <h3>Change Subscription</h3>
-            <button onClick={updateUser}>Change subscription</button>
-            <p>{result}</p>
-        </div>
         <div>
             <h3>Update Email</h3>
         </div>

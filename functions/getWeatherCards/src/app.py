@@ -2,6 +2,9 @@ import boto3
 import json
 from decimal import Decimal
 
+#Need to update to query for specific cities instead of scanning whole db
+
+
 def decimal_default(obj):
     if isinstance(obj, Decimal):
         # Convert Decimal to float or int depending on value

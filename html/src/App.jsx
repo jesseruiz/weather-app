@@ -1,4 +1,5 @@
 import { Routes, Route, NavLink, Navigate, useNavigate } from 'react-router';
+import { useEffect } from 'react';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
 import Home from './Home';
 import Contact from './Contact';
@@ -6,9 +7,11 @@ import Dashboard from './Dashboard';
 import UpdatePassword from './UpdatePassword';
 import WeatherSliderWrapper from './WeatherSliderWrapper';
 import ManageAlerts from './ManageAlerts';
+import MyForecast from './MyForecast'
 
 import './amplify-configure';
 import './App.css';
+import MyForecastWrapper from './MyForecastWrapper';
 
 const formFields = {
   signUp: {
@@ -52,6 +55,16 @@ function App() {
   const { authStatus, user, signOut } = useAuthenticator((ctx) => [ctx.authStatus, ctx.user]);
   const navigate = useNavigate();
 
+  function LoginRedirect() {
+    const navigate = useNavigate();
+    
+    useEffect(() => {
+      navigate('/');
+    }, [navigate]);
+    
+    return null;
+  }
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/'); // Redirect to home after sign out
@@ -64,10 +77,14 @@ function App() {
         <ul>
           <li className='logo'><NavLink to="/">On A Heater!</NavLink></li>
           <li><NavLink to="/">Home</NavLink></li>
-          <li><NavLink to="/Contact">Contact</NavLink></li>
+          <li><a href="https://buy.stripe.com/test_00w3cx64Gbirdf5cSzgUM00" target="_blank" rel="noopener noreferrer">
+              Donate
+              </a>
+          </li>
           {authStatus === 'authenticated' ? (
             <>
-              <li><NavLink to="/dashboard">Account</NavLink></li>
+              <li><NavLink to="/MyForecast">My Forecast</NavLink></li>
+              <li><NavLink to="/Dashboard">Account</NavLink></li>
               <li><button onClick={handleSignOut}>Sign Out</button></li>
             </>
           ) : (
@@ -84,15 +101,13 @@ function App() {
           <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/Update-Password" element={<UpdatePassword />} />
           <Route path="/Manage-Alerts" element={<ManageAlerts />} />
+          <Route path="/MyForecast" element={<MyForecastWrapper />} />
 
           {/* Login page with Amplify UI */}
           <Route path="/login" element={
               <Authenticator formFields={formFields} loginMechanisms={['email']} signUpAttributes={['custom:City']}>
               {({ signOut, user }) => (
-                <main>
-                  <h1>Hello {user.name}</h1>
-                  <button onClick={handleSignOut}>Sign out</button>
-                </main>
+                <LoginRedirect />
               )}
             </Authenticator>
           } />
@@ -100,7 +115,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <WeatherSliderWrapper />
+       {/*<WeatherSliderWrapper /> */}
       </footer>
     </div>
   );
