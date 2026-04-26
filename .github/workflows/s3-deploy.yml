@@ -44,6 +44,6 @@ jobs:
         aws s3 sync html/dist/ s3://weatheralertsapp --delete
 
     - name: Invalidate CloudFront Cache
-        run: aws cloudfront create-invalidation --distribution-id ${{ vars.AWS_CF_DISTRO }} --paths "/*"
+      run: aws cloudfront create-invalidation --distribution-id ${{ vars.AWS_CF_DISTRO }} --paths "/*"
 
     
