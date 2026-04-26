@@ -11,9 +11,8 @@ const weatherAnimations = {
 
 export default function Home() {
   const { authStatus, user } = useAuthenticator((authState) => [authState.authStatus, authState.user]);
-  const [city, setCity] = useState("");
   
-  // Updated state to handle complex objects instead of a single string
+  const [city, setCity] = useState("");
   const [alerts, setAlerts] = useState([]);
   const [forecast, setForecast] = useState([]);
   const [errorMsg, setErrorMsg] = useState("");
@@ -26,7 +25,7 @@ export default function Home() {
       return;
     }
     
-    // Reset state before fetching
+    // Reset state before fetching a new city
     setErrorMsg("");
     setAlerts([]);
     setForecast([]);
@@ -37,7 +36,6 @@ export default function Home() {
         `https://raj8a28np4.execute-api.us-east-1.amazonaws.com/weather?city=${encodeURIComponent(city)}`
       );
       
-      // Parse JSON instead of Text
       const data = await response.json();
 
       if (data.error) {
@@ -45,11 +43,12 @@ export default function Home() {
          return;
       }
 
+      // Save the specific data into state
       setAlerts(data.alerts || []);
       setForecast(data.forecast || []);
       setHasSearched(true);
 
-      // Combine alerts into a single string to check for keywords
+      // Combine alerts into a single string just to check for Lottie animation keywords
       const lowerText = (data.alerts || []).join(" ").toLowerCase();
 
       if (lowerText.includes("heat")) {
@@ -71,7 +70,7 @@ export default function Home() {
   return (
     <div className={`home ${alertType}`}>
       <div className={`mainContent ${hasSearched ? 'shifted' : ''}`}>
-        <h1 className="mainHeader">Check Weather</h1>
+        <h1 className="mainHeader">Check Weather Alerts & Forecast</h1>
         <div className='submitField'>
           <input
             className="inputField"
@@ -82,52 +81,60 @@ export default function Home() {
           />
           <button className="submitButton" onClick={getWeather}>Get Weather</button>
         </div>
-        {errorMsg && <p className="error-text" style={{color: 'red'}}>{errorMsg}</p>}
+        {errorMsg && <p className="error-text" style={{color: 'red', marginTop: '10px'}}>{errorMsg}</p>}
       </div>
 
       {hasSearched && (
         <div className={`responseCard alert-container ${alertType}`}>
-          <div className="responseContent" style={{ zIndex: 2, position: 'relative' }}>
+          <div className="responseContent">
             
-            {/* Alerts Section */}
-            <div className="alerts-section">
-              <h2>Active Alerts</h2>
-              {alerts.length > 0 ? (
-                <ul>
-                  {alerts.map((alert, index) => (
-                    <li key={index} className="alert-item">{alert}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No active weather alerts for this area.</p>
-              )}
-            </div>
+            {/* TIER 1: Active Alerts & Lottie Side-by-Side */}
+            {alerts.length > 0 && (
+              <div className="alerts-section">
+                
+                {/* Left Side: The Text */}
+                <div className="alerts-text">
+                  <h2>Active Alerts</h2>
+                  <ul className="alerts-list">
+                    {alerts.map((alert, index) => (
+                      <li key={index} className="alert-item">{alert}</li>
+                    ))}
+                  </ul>
+                </div>
 
-            {/* Forecast Section */}
-            <div className="forecast-section" style={{ marginTop: '20px' }}>
+                {/* Right Side: The Lottie Animation */}
+                {weatherAnimations[alertType] && alertType !== "default" && (
+                  <div className="lottie-container">
+                    <DotLottieReact
+                      src={weatherAnimations[alertType]}
+                      loop
+                      autoplay
+                    />
+                  </div>
+                )}
+                
+              </div>
+            )}
+
+            {/* TIER 2: Horizontal 7-Day Forecast Grid */}
+            <div className="forecast-section">
               <h2>7-Day Forecast</h2>
-              <div className="forecast-grid" style={{ display: 'grid', gap: '10px', maxHeight: '400px', overflowY: 'auto' }}>
+              <div className="forecast-grid">
                 {forecast.map((day, index) => (
-                  <div key={index} className="forecast-card" style={{ padding: '10px', background: 'rgba(255,255,255,0.8)', borderRadius: '8px' }}>
-                    <strong>{day.name}</strong>: {day.shortForecast} <br/>
-                    Temp: {day.temperature}°F | Wind: {day.windSpeed} | Rain: {day.rainProbability}%
+                  <div key={index} className="forecast-card">
+                    <h3 className="forecast-day">{day.name}</h3>
+                    <p className="forecast-desc">{day.shortForecast}</p>
+                    <div className="forecast-stats">
+                      <span className="temp">{day.temperature}°F</span>
+                      <span className="rain">💧 {day.rainProbability}%</span>
+                      <span className="wind">💨 {day.windSpeed}</span>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
           </div>
-          
-          {/* Lottie Background */}
-          {weatherAnimations[alertType] && alertType !== "default" && (
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1, opacity: 0.5, pointerEvents: 'none' }}>
-              <DotLottieReact
-                src={weatherAnimations[alertType]}
-                loop
-                autoplay
-              />
-            </div>
-          )}
         </div>
       )}
     </div>

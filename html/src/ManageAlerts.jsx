@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import { fetchAuthSession } from 'aws-amplify/auth'; // 1. Import the session fetcher
 
 export default function ManageAlerts() {
   const { user } = useAuthenticator((context) => [context.user]);
@@ -21,9 +22,26 @@ export default function ManageAlerts() {
   useEffect(() => {
     if (!user?.username) return;
 
-    fetch(`https://raj8a28np4.execute-api.us-east-1.amazonaws.com/get_user?id=${user.username}`)
-      .then(res => res.ok ? res.json() : Promise.reject('Failed to fetch'))
-      .then(data => {
+    // 2. Refactor to an async function to easily grab the token before fetching
+    async function fetchSettings() {
+      try {
+        const session = await fetchAuthSession();
+        const token = session.tokens?.idToken?.toString();
+
+        if (!token) throw new Error("No valid auth token found.");
+
+        const res = await fetch(`https://raj8a28np4.execute-api.us-east-1.amazonaws.com/get_user?id=${user.username}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, // 3. Inject secure token
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!res.ok) throw new Error('Failed to fetch settings');
+        
+        const data = await res.json();
+
         const fetchedSettings = {
           city: data.city || '',
           alertsEnabled: data.alerts || false,
@@ -31,11 +49,17 @@ export default function ManageAlerts() {
           textEnable: data["alerts-text"] ? true : false,
           alertFrequency: data["alert-frequency"] || 'None'
         };
+        
         setSettings(fetchedSettings);
         setOriginalSettings(fetchedSettings);
         setStatus({ loading: false, error: null, message: null });
-      })
-      .catch(err => setStatus({ loading: false, error: err?.message || String(err), message: null }));
+
+      } catch (err) {
+        setStatus({ loading: false, error: err?.message || String(err), message: null });
+      }
+    }
+
+    fetchSettings();
   }, [user?.username]);
 
   // Check if there are unsaved changes
@@ -76,9 +100,18 @@ export default function ManageAlerts() {
     setStatus({ loading: true, error: null, message: null });
 
     try {
+      // 4. Grab the secure token again before saving data
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+
+      if (!token) throw new Error("No valid auth token found.");
+
       const response = await fetch('https://raj8a28np4.execute-api.us-east-1.amazonaws.com/update_user', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // 5. Inject secure token
+        },
         body: JSON.stringify({ ...settings, userId: user?.username })
       });
 

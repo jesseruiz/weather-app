@@ -8,7 +8,7 @@ export default function MyForecast({ forecast }) {
   }
   
   // Target the first index of the array for initialization
-  const [selectedDay, setSelectedDay] = useState(forecast[0].day);
+  const [selectedDay, setSelectedDay] = useState(forecast[0].name);
 
   return (
     <div className="weekly-forecast">
@@ -17,11 +17,11 @@ export default function MyForecast({ forecast }) {
       <div className="forecast-card-row">
         {forecast.map((item) => (
           <div
-            key={item.day}
-            className={`forecast-card ${selectedDay === item.day ? "selected" : ""}`}
-            onClick={() => setSelectedDay(item.day)}
+            key={item.name}
+            className={`forecast-card ${selectedDay === item.name ? "selected" : ""}`}
+            onClick={() => setSelectedDay(item.name)}
           >
-            <div className="day-label">**{item.day}**</div>
+            <div className="day-label">**{item.name}**</div>
             <div className="weather-icon-placeholder"></div>
             <div className="temp-placeholder">Temp: {item.temperature}°F</div>
             <div className="wind-placeholder">Wind: {item.windSpeed}</div>

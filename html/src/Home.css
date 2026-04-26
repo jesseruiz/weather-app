@@ -1,3 +1,6 @@
+/* ===============================
+   BASE HOME STYLES
+=============================== */
 .home {
   display: flex;
   justify-content: space-evenly;
@@ -9,6 +12,7 @@
 
 .mainHeader {
   font-size: 3rem;
+  text-align: center;
 }
 
 .submitField {
@@ -20,44 +24,165 @@
 .inputField {
   width: 250px;
   height: 55px;
+  padding: 0 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.submitButton {
+  height: 55px;
+  padding: 0 20px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
 }
 
 .submitButton:hover {
-background-color: #F9980B;
-color: white;
+  background-color: #F9980B;
+  color: white;
 }
+
 .responseContent {
-display: flex;
-flex-direction: column; /* Lottie and result side by side */
-align-items: center;
-position: relative; /* allows proper positioning of Lottie if needed */
+  display: flex;
+  flex-direction: column; 
+  align-items: center;
+  position: relative; 
+  width: 100%;
+  max-width: 800px; /* Keeps the UI from stretching too wide on massive screens */
+  margin-top: 20px;
 }
 
-.result {
-font-size: 1.2rem;
-font-weight: bold;
-}
-
-.weather-lottie-background {
-width: 300px;
-height: 300px;
-z-index: 1; /* adjust as needed */
-position: relative;
-}
-
-.alert-container.heat {
-color: white;
-}
-
-.alert-container.rain {
-color: white;
-}
-
+/* Base Alert Containers */
+.alert-container.heat,
+.alert-container.rain,
 .alert-container.windy {
-color: white;
+  color: white;
 }
 
 .alert-container.error {
-background: #ffe0e0;
-color: darkred;
+  background: #ffe0e0;
+  color: darkred;
+}
+
+/* ===============================
+   NEW LAYOUT: LOTTIE & ALERTS
+=============================== */
+
+/* Alerts Section (The Banner) */
+.alerts-section {
+  background-color: rgba(255, 99, 71, 0.1);
+  border-left: 4px solid #ff6347;
+  padding: 15px 25px; /* Extra padding on the sides */
+  border-radius: 8px;
+  margin-bottom: 25px;
+  width: 100%;
+  color: #333; /* Forces dark text so it doesn't inherit white from the parent */
+  
+  /* Flexbox to split text and Lottie */
+  display: flex;
+  justify-content: space-between; /* Pushes text left, Lottie right */
+  align-items: center; /* Vertically centers them */
+  gap: 20px;
+}
+
+/* Forces the text side to take up the available empty space */
+.alerts-text {
+  flex: 1;
+}
+
+.alerts-list {
+  margin: 10px 0 0 0;
+  padding-left: 20px;
+}
+
+.alert-item {
+  color: #d32f2f;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+/* Lottie Right-Side Container */
+.lottie-container {
+  width: 100px;  /* Shrunk down to fit nicely in the bar */
+  height: 100px;
+  flex-shrink: 0; /* Prevents the animation from being squished by long text */
+  margin: 0; 
+}
+
+
+/* ===============================
+   NEW LAYOUT: HORIZONTAL FORECAST
+=============================== */
+.forecast-section {
+  width: 100%;
+}
+
+.forecast-section h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+/* The Horizontally Scrolling Grid */
+.forecast-grid {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding-bottom: 15px; /* Gives room for the scrollbar */
+  scrollbar-width: thin; /* Makes the scrollbar look cleaner on Firefox */
+  max-width: 90vw; /* Ensures it stays within screen boundaries on mobile */
+}
+
+/* Custom scrollbar for Chrome/Safari/Edge */
+.forecast-grid::-webkit-scrollbar {
+  height: 8px;
+}
+.forecast-grid::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+/* Individual Weather Cards */
+.forecast-card {
+  flex: 0 0 auto; /* Prevents cards from squishing together */
+  width: 160px;   /* Consistent card width */
+  background: rgba(255, 255, 255, 0.95); /* Mostly solid white background */
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  color: #333; /* Overrides parent container colors to keep text legible */
+}
+
+.forecast-day {
+  font-size: 1.1rem;
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.forecast-desc {
+  font-size: 0.9rem;
+  margin: 0 0 15px 0;
+  color: #555;
+  line-height: 1.3;
+  flex-grow: 1; /* Pushes the stats to the bottom evenly across all cards */
+}
+
+.forecast-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.85rem;
+}
+
+.forecast-stats .temp {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #e67e22; /* Adds a nice pop of color for the temperature */
 }
