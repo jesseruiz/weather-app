@@ -98,10 +98,26 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/Contact" element={<Contact />} />
-          <Route path="/Dashboard" element={<Dashboard />} />
-          <Route path="/Update-Password" element={<UpdatePassword />} />
-          <Route path="/Manage-Alerts" element={<ManageAlerts />} />
-          <Route path="/MyForecast" element={<MyForecastWrapper />} />
+          <Route path="/Dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/Update-Password" element={
+            <ProtectedRoute>
+              <UpdatePassword />
+            </ProtectedRoute>
+          } />
+          <Route path="/Manage-Alerts" element={
+            <ProtectedRoute>
+              <ManageAlerts />
+            </ProtectedRoute>
+          } />
+          <Route path="/MyForecast" element={
+            <ProtectedRoute>
+              <MyForecastWrapper />
+            </ProtectedRoute>
+          } />
 
           {/* Login page with Amplify UI */}
           <Route path="/login" element={

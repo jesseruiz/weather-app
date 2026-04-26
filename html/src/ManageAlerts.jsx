@@ -47,7 +47,7 @@ export default function ManageAlerts() {
   };
 
   const validateCity = (value) => {
-    const cityRegex = /^[A-Za-z\s.''-]+$/;
+    const cityRegex = /^[A-Za-z\s.'-]+$/;
     return value && cityRegex.test(value);
   };
 
