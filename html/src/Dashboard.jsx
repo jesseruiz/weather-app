@@ -9,7 +9,6 @@ Need to update account deletion to redirect to home
 
 export default function Dashboard() {
     const { authStatus, user } = useAuthenticator((authState) => [authState.authStatus, authState.user]);
-    const [result, setResult] = useState("");
     const navigate = useNavigate();
 
     const handleSuccess = () => {
