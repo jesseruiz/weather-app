@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { fetchAuthSession } from 'aws-amplify/auth'; // 1. Import the session fetcher
+import { fetchAuthSession } from 'aws-amplify/auth'; 
 
 export default function ManageAlerts() {
   const { user } = useAuthenticator((context) => [context.user]);
@@ -22,7 +22,6 @@ export default function ManageAlerts() {
   useEffect(() => {
     if (!user?.username) return;
 
-    // 2. Refactor to an async function to easily grab the token before fetching
     async function fetchSettings() {
       try {
         const session = await fetchAuthSession();
@@ -33,7 +32,7 @@ export default function ManageAlerts() {
         const res = await fetch(`https://raj8a28np4.execute-api.us-east-1.amazonaws.com/get_user?id=${user.username}`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`, // 3. Inject secure token
+            'Authorization': `Bearer ${token}`, 
             'Content-Type': 'application/json'
           }
         });
@@ -42,12 +41,13 @@ export default function ManageAlerts() {
         
         const data = await res.json();
 
+        // 🛠️ THE FIX: Looking for clean camelCase keys directly from the database!
         const fetchedSettings = {
           city: data.city || '',
-          alertsEnabled: data.alerts || false,
-          emailEnable: data["alerts-email"] ? true : false,
-          textEnable: data["alerts-text"] ? true : false,
-          alertFrequency: data["alert-frequency"] || 'None'
+          alertsEnabled: data.alertsEnabled || false,
+          emailEnable: data.emailEnable || false,
+          textEnable: data.textEnable || false,
+          alertFrequency: data.alertFrequency || 'None'
         };
         
         setSettings(fetchedSettings);
@@ -62,7 +62,6 @@ export default function ManageAlerts() {
     fetchSettings();
   }, [user?.username]);
 
-  // Check if there are unsaved changes
   const hasChanges = originalSettings && 
     JSON.stringify(settings) !== JSON.stringify(originalSettings);
 
@@ -100,7 +99,6 @@ export default function ManageAlerts() {
     setStatus({ loading: true, error: null, message: null });
 
     try {
-      // 4. Grab the secure token again before saving data
       const session = await fetchAuthSession();
       const token = session.tokens?.idToken?.toString();
 
@@ -110,8 +108,9 @@ export default function ManageAlerts() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // 5. Inject secure token
+          'Authorization': `Bearer ${token}` 
         },
+        // React sends exact camelCase keys like emailEnable and textEnable
         body: JSON.stringify({ ...settings, userId: user?.username })
       });
 
@@ -139,11 +138,9 @@ export default function ManageAlerts() {
     <div className="manage_alerts">
       <h2>Manage Weather Alerts</h2>
 
-      {/* Status Messages */}
       {status.error && <p style={{ color: 'red' }}>{status.error}</p>}
       {status.message && <p style={{ color: 'green' }}>{status.message}</p>}
 
-      {/* City Setting */}
       <div style={{ marginBottom: '20px' }}>
         <p><strong>City:</strong> {settings.city || 'Not set'}</p>
         {!editingCity ? (
@@ -162,7 +159,6 @@ export default function ManageAlerts() {
         )}
       </div>
 
-      {/* Enable Alerts */}
       <div>
         <label>
           <input 
@@ -174,7 +170,6 @@ export default function ManageAlerts() {
         </label>
       </div>
 
-      {/* Conditional Alert Options */}
       {settings.alertsEnabled && (
         <>
           <div>
@@ -213,7 +208,6 @@ export default function ManageAlerts() {
         </>
       )}
 
-      {/* Save/Cancel Buttons */}
       {hasChanges && (
         <div style={{ marginTop: '20px' }}>
           <button onClick={handleSave} disabled={status.loading}>

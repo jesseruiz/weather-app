@@ -2,12 +2,12 @@ import { useState } from 'react';
 import "./MyForecast.css";
 
 export default function MyForecast({ forecast }) {
-  // 1. Guard Clause: If forecast is missing or empty, stop here.
+  // Guard Clause: If forecast is missing or empty, stop here.
   if (!forecast || forecast.length === 0) {
     return <p>No weekly data available.</p>;
   }
   
-  // Target the first index of the array for initialization
+  // 1. UPDATED: Target .name instead of .day for the default selection
   const [selectedDay, setSelectedDay] = useState(forecast[0].name);
 
   return (
@@ -17,12 +17,14 @@ export default function MyForecast({ forecast }) {
       <div className="forecast-card-row">
         {forecast.map((item) => (
           <div
-            key={item.name}
+            key={item.name} /* 2. UPDATED: Use item.name for the key */
             className={`forecast-card ${selectedDay === item.name ? "selected" : ""}`}
-            onClick={() => setSelectedDay(item.name)}
+            onClick={() => setSelectedDay(item.name)} /* 3. UPDATED: Set state using item.name */
           >
-            <div className="day-label">**{item.name}**</div>
+            <div className="day-label">**{item.name}**</div> {/* 4. UPDATED: Display item.name */}
             <div className="weather-icon-placeholder"></div>
+            
+            {/* These already perfectly match your new optimized backend! */}
             <div className="temp-placeholder">Temp: {item.temperature}°F</div>
             <div className="wind-placeholder">Wind: {item.windSpeed}</div>
             <div className="rain-placeholder">Rain: {item.rainProbability}%</div>
@@ -30,7 +32,6 @@ export default function MyForecast({ forecast }) {
         ))}
       </div>
 
-      {/* Optional: Add a detail view for the selected day */}
       <div className="selected-details">
         <h3>Showing details for: {selectedDay}</h3>
       </div>

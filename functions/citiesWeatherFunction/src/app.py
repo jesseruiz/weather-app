@@ -2,37 +2,28 @@ import requests
 import boto3
 from geopy.geocoders import Nominatim
 from datetime import datetime
-from boto3.dynamodb.conditions import Key
-
-
-#Ultimately will scan user db table for cities and get weather for each
 
 # Setup DynamoDB table resource
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('weather-app-cities')
 
-# Cities to process
-cities = set()
-
-def get_cities():
-    try:
-        response = table.scan(
-            ProjectionExpression='city'  # Only get the city attribute
-        )
-
-        for item in response.get('Items'):
-            cities.add(item['city'])
-
-        return list(cities)
-
-
-    except Exception as e:
-        print(f"Error with DynamoDB scan: {e}")
-
-
 # Geolocator setup
 geolocator = Nominatim(user_agent="weather_app")
 
+def get_cities():
+    """Scans DynamoDB and returns a list of unique cities."""
+    cities = set()
+    try:
+        response = table.scan(
+            ProjectionExpression='city' 
+        )
+        for item in response.get('Items', []):
+            cities.add(item['city'])
+            
+        return list(cities)
+    except Exception as e:
+        print(f"Error with DynamoDB scan: {e}")
+        return []
 
 def get_city_coordinates(city):
     location = geolocator.geocode(city)
@@ -41,7 +32,6 @@ def get_city_coordinates(city):
     else:
         print(f"City not found: {city}")
         return None, None
-
 
 def get_weather(lat, long, city):
     try:
@@ -56,72 +46,45 @@ def get_weather(lat, long, city):
         r.raise_for_status()
         data = r.json()
 
-        daily_forecast = data["properties"]["periods"][0]
-        rain_probability = daily_forecast['probabilityOfPrecipitation']['value']
-        wind_speed = daily_forecast["windSpeed"]
-        temperature = daily_forecast["temperature"]
-
-        print(f"{city}: {temperature}F, {wind_speed}, {rain_probability}% chance of rain")
-
-        store_weather_data_daily(city, temperature, wind_speed, rain_probability)
-
         weekly_forecast = data["properties"]["periods"]
+        # Grab the current period + the next 6 daytime periods
         filtered_periods = [weekly_forecast[0]] + [p for p in weekly_forecast[1:] if p.get("isDaytime")]
         filtered_periods = filtered_periods[:7]
-        print('Filtered')
-        print(filtered_periods)
+        
         formatted_forecast = []
         for day in filtered_periods:
-
-            rain_probability = day['probabilityOfPrecipitation']['value']
-            wind_speed = day["windSpeed"]
-            temperature = day["temperature"]
-
             formatted_forecast.append({
-                'day': day['name'],
-                'date': day['startTime'].split('T')[0],  # Extract date only
-                'temperature': temperature,
-                'windSpeed': wind_speed,
-                'rainProbability': rain_probability,
+                'name': day['name'], # Changed from 'day' to 'name' to match your React frontend!
+                'date': day['startTime'].split('T')[0],
+                'temperature': day["temperature"],
+                'windSpeed': day["windSpeed"],
+                'rainProbability': day.get('probabilityOfPrecipitation', {}).get('value') or 0,
             })
-            print(formatted_forecast)
         
-        store_weather_data_weekly(city, formatted_forecast)
+        # ONE single database write per city!
+        store_weather_data(city, formatted_forecast)
 
     except (requests.exceptions.RequestException, KeyError) as e:
         print(f"Weather unavailable for {city}. Error: {e}")
 
-
-def store_weather_data_daily(city, temperature, wind_speed, rain_probability):
-    print('Starting')
+def store_weather_data(city, forecast):
+    """Stores the full 7-day forecast. Daily data is simply forecast[0]."""
+    print(f"Storing optimized forecast for {city}...")
+    
     table.put_item(
         Item={
             'city': city,
-            'forecastType': 'daily',
+            'forecastType': 'weekly', # Kept as 'weekly' so frontend API doesn't break
             'timestamp': datetime.utcnow().isoformat(),
-            'dailyForecast': {
-                'temperature': temperature,
-                'windSpeed': wind_speed,
-                'rainProbability': rain_probability,
-            }
-        }
-    )
-
-def store_weather_data_weekly(city, forecast):
-    table.put_item(
-        Item={
-            'city': city,
-            'forecastType': 'weekly',
-            'timestamp': datetime.utcnow().isoformat(),
+            'currentTemperature': forecast[0]['temperature'], 
+            'currentWind': forecast[0]['windSpeed'],
+            'currentRainProbability': forecast[0]['rainProbability'], 
             'weeklyForecast': forecast
         }
     )
 
-
 def lambda_handler(event, context):
-
-    get_cities()
-
+    cities = get_cities()
 
     for city in cities:
         lat, long = get_city_coordinates(city)
@@ -130,5 +93,5 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': 'Weather data loaded successfully'
+        'body': 'Weather data optimized and loaded successfully'
     }

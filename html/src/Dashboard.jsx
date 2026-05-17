@@ -1,7 +1,5 @@
-import { useAuthenticator } from '@aws-amplify/ui-react';
-import { AccountSettings } from '@aws-amplify/ui-react';
+import { useAuthenticator, AccountSettings } from '@aws-amplify/ui-react';
 import { useNavigate } from 'react-router';
-import { useState } from 'react';
 
 /* 
 Need to update account deletion to redirect to home
