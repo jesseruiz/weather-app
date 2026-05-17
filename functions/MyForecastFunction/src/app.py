@@ -3,6 +3,12 @@ import json
 from decimal import Decimal
 from boto3.dynamodb.conditions import Key
 
+HEADERS = {
+    "Access-Control-Allow-Origin": "*",  
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Amz-Date, X-Api-Key, X-Amz-Security-Token",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+}
+
 
 def getUserCity(usrID):
     dynamodb = boto3.resource('dynamodb')
@@ -57,20 +63,55 @@ def getWeather(city):
 
 
 def lambda_handler(event, context):
+    # 2. Extract the HTTP Method (Handles both REST APIs and HTTP APIs safely)
+    http_method = event.get("httpMethod")
+    if not http_method:
+        http_method = event.get("requestContext", {}).get("http", {}).get("method")
 
-    usrID = event["queryStringParameters"]["id"]
-    city = getUserCity(usrID)
-    result = getWeather(city)
+    # 3. INTERCEPT OPTIONS REQUEST: Return 200 OK immediately with headers
+    if http_method == "OPTIONS":
+        return {
+            "statusCode": 200,
+            "headers": HEADERS,
+            "body": ""
+        }
 
+    # --- Only process actual GET requests below this line ---
+    try:
+        # Safely extract query parameters so missing params don't crash the Lambda
+        query_params = event.get("queryStringParameters") or {}
+        usrID = query_params.get("id")
 
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Origin": "*",  # or specific origin
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
-        },
-        "body": json.dumps(convert_decimals(result))
-    }
+        if not usrID:
+            return {
+                "statusCode": 400,
+                "headers": HEADERS,
+                "body": json.dumps({"error": "Missing id in query parameters"})
+            }
 
+        city = getUserCity(usrID)
+        
+        # Handle cases where the user exists but hasn't set a city yet
+        if not city:
+            return {
+                "statusCode": 404,
+                "headers": HEADERS,
+                "body": json.dumps({"error": "User city not found"})
+            }
+
+        result = getWeather(city)
+
+        return {
+            "statusCode": 200,
+            "headers": HEADERS,
+            "body": json.dumps(convert_decimals(result))
+        }
+        
+    except Exception as e:
+        print(f"Error in lambda_handler: {e}")
+        return {
+            "statusCode": 500,
+            "headers": HEADERS,
+            "body": json.dumps({"error": "Internal Server Error"})
+        }
 

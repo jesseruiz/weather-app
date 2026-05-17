@@ -10,8 +10,9 @@ QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/745167176709/Weather-Alerts'
 
 def getUserWeather(city):
     try:
+        # 1. FIXED: Change 'daily' to 'weekly'
         response = citiesWeather.get_item(
-            Key={'city': city, 'forecastType': 'daily'}
+            Key={'city': city, 'forecastType': 'weekly'}
         )
         item = response.get('Item')
         if not item:
@@ -24,11 +25,11 @@ def getUserWeather(city):
 
 def send_weather_email(email, weather_data):
     try:
+        # 2. FIXED: Pull directly from the new top-level database attributes
         city             = weather_data['city']
-        forecast         = weather_data['dailyForecast']
-        temperature      = int(forecast['temperature'])
-        wind_speed       = forecast['windSpeed']
-        rain_probability = int(forecast['rainProbability'])
+        temperature      = int(weather_data['currentTemperature'])
+        wind_speed       = weather_data['currentWind']
+        rain_probability = int(weather_data['currentRainProbability'])
 
         if rain_probability > 70:
             condition_emoji = "🌧️ Rainy"

@@ -36,18 +36,21 @@ const formFields = {
   },
  }
 
-const myCards = [
-  { id: 1, title: 'Card 1', description: 'This is the first card' },
-  { id: 2, title: 'Card 2', description: 'This is the second card' },
-  { id: 3, title: 'Card 3', description: 'This is the third card' },
-  { id: 4, title: 'Card 4', description: 'This is the fourth card' },
-  { id: 5, title: 'Card 5', description: 'This is the fifth card' },
-];
-
 // 🔐 Protected Route wrapper
 function ProtectedRoute({ children }) {
   const { user } = useAuthenticator((context) => [context.user]);
   return user ? children : <Navigate to="/login" replace />;
+}
+
+// 🛠️ THE FIX: Moved outside of the App component to prevent memory leaks and infinite loops
+function LoginRedirect() {
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    navigate('/');
+  }, [navigate]);
+  
+  return null;
 }
 
 function App() {
@@ -55,22 +58,11 @@ function App() {
   const { authStatus, user, signOut } = useAuthenticator((ctx) => [ctx.authStatus, ctx.user]);
   const navigate = useNavigate();
 
-  function LoginRedirect() {
-    const navigate = useNavigate();
-    
-    useEffect(() => {
-      navigate('/');
-    }, [navigate]);
-    
-    return null;
-  }
-
   const handleSignOut = async () => {
     await signOut();
     navigate('/'); // Redirect to home after sign out
   };
   
-
   return (
     <div className="app">
       <nav>
@@ -92,7 +84,6 @@ function App() {
           )}
         </ul>
       </nav>
-
 
       <main>
         <Routes>
@@ -137,6 +128,4 @@ function App() {
   );
 }
 
-  
-
-export default App
+export default App;
