@@ -5,7 +5,6 @@ import Home from './Home';
 import Contact from './Contact';
 import Dashboard from './Dashboard';
 import UpdatePassword from './UpdatePassword';
-import WeatherSliderWrapper from './WeatherSliderWrapper';
 import ManageAlerts from './ManageAlerts';
 import MyForecast from './MyForecast'
 
@@ -36,13 +35,20 @@ const formFields = {
   },
  }
 
-// 🔐 Protected Route wrapper
+// 🔐 THE FIX: Protected Route wrapper that waits for Amplify to finish configuring
 function ProtectedRoute({ children }) {
-  const { user } = useAuthenticator((context) => [context.user]);
+  const { authStatus, user } = useAuthenticator((context) => [context.authStatus, context.user]);
+
+  // If Amplify is still checking local storage, show a loading state
+  if (authStatus === 'configuring') {
+    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading session...</div>;
+  }
+
+  // Once it finishes configuring, decide whether to show the page or kick them to login
   return user ? children : <Navigate to="/login" replace />;
 }
 
-// 🛠️ THE FIX: Moved outside of the App component to prevent memory leaks and infinite loops
+// 🛠️ LoginRedirect: Moved outside of the App component to prevent memory leaks and infinite loops
 function LoginRedirect() {
   const navigate = useNavigate();
   
