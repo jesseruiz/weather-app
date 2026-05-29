@@ -41,7 +41,6 @@ export default function ManageAlerts() {
         
         const data = await res.json();
 
-        // 🛠️ THE FIX: Looking for clean camelCase keys directly from the database!
         const fetchedSettings = {
           city: data.city || '',
           alertsEnabled: data.alertsEnabled || false,
@@ -110,7 +109,6 @@ export default function ManageAlerts() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}` 
         },
-        // React sends exact camelCase keys like emailEnable and textEnable
         body: JSON.stringify({ ...settings, userId: user?.username })
       });
 
