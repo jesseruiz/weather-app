@@ -35,7 +35,7 @@ const formFields = {
   },
  }
 
-// 🔐 THE FIX: Protected Route wrapper that waits for Amplify to finish configuring
+// 🔐 Protected Route wrapper that waits for Amplify to finish configuring
 function ProtectedRoute({ children }) {
   const { authStatus, user } = useAuthenticator((context) => [context.authStatus, context.user]);
 
@@ -66,7 +66,8 @@ function App() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/'); // Redirect to home after sign out
+    // THE FIX: Forces a hard browser refresh to wipe Amplify's stale global state!
+    window.location.href = '/'; 
   };
   
   return (

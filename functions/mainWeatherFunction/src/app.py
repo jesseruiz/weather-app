@@ -3,6 +3,12 @@ import re
 import json
 import boto3
 from geopy.geocoders import Nominatim
+from datetime import datetime
+from decimal import Decimal
+
+# Setup DynamoDB
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('weather-app-cities')
 
 WIND_ALERT_THRESHOLD = 25
 RAIN_ALERT_THRESHOLD = 50
@@ -10,9 +16,8 @@ HEAT_ALERT_THRESHOLD = 102
 
 def getRain(day):
     alerts = []
-    # Safely get the rain probability, default to 0 if missing
     rainProbability = day.get('probabilityOfPrecipitation', {}).get('value') or 0
-    if isinstance(rainProbability, int) and rainProbability > RAIN_ALERT_THRESHOLD:
+    if isinstance(rainProbability, (int, Decimal, float)) and float(rainProbability) > RAIN_ALERT_THRESHOLD:
         alerts.append(f"Rain likely on {day['name']}: {day['shortForecast']}")
     return alerts
 
@@ -31,79 +36,90 @@ def getHeat(day):
         alerts.append(f"Heat warning on {day['name']}. {temperature}F Stay cool!")
     return alerts
 
+# Helper to prevent JSON from crashing on DynamoDB Decimals
+def decimal_default(obj):
+    if isinstance(obj, Decimal): return float(obj)
+    raise TypeError
 
 def lambda_handler(event, context):
-    query_params = event.get("queryStringParameters") or {}
-    city = query_params.get("city")
-
-    # Standardize headers for a JSON response with CORS enabled
     headers = {
         "Access-Control-Allow-Origin": "*",  
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Content-Type": "application/json"
     }
 
-    if not city:
-        return {
-            "statusCode": 400,
-            "headers": headers,
-            "body": json.dumps({"error": "Missing required query parameter: city"})
-        }
+    query_params = event.get("queryStringParameters") or {}
+    raw_city = query_params.get("city")
+
+    if not raw_city:
+        return {'statusCode': 400, 'headers': headers, 'body': json.dumps({"error": "Missing city"})}
         
+    # 1. VALIDATION: Normalize Capitalization (e.g., "los angeles" -> "Los Angeles")
+    normalized_city = raw_city.strip().title()
+
+    # ==========================================
+    # STEP 1: CHECK THE DATABASE CACHE FIRST
+    # ==========================================
+    try:
+        response = table.get_item(Key={'city': normalized_city, 'forecastType': 'weekly'})
+        cached_item = response.get('Item')
+        
+        if cached_item:
+            print(f"CACHE HIT: Loading {normalized_city} from DynamoDB")
+            weekly_forecast = cached_item.get('weeklyForecast', [])
+            
+            # Generate live alerts based on the cached data
+            alerts = []
+            for day in weekly_forecast[:8]:
+                alerts += getRain(day)
+                alerts += getWind(day)
+                alerts += getHeat(day)
+                
+            return {
+                "statusCode": 200,
+                "headers": headers,
+                "body": json.dumps({
+                    "city": normalized_city,
+                    "alerts": alerts,
+                    "forecast": weekly_forecast
+                }, default=decimal_default)
+            }
+    except Exception as e:
+        print(f"Cache check failed, falling back to NWS API: {e}")
+
+    # ==========================================
+    # STEP 2: CACHE MISS - FETCH FROM WEATHER API
+    # ==========================================
+    print(f"CACHE MISS: Fetching {normalized_city} from NWS API")
     geolocator = Nominatim(user_agent="weather_lambda_app")
 
     try:
-        location = geolocator.geocode(city)
+        # 2. VALIDATION: Geocoder checks if the city actually exists on Earth
+        location = geolocator.geocode(normalized_city)
         if not location:
-            return {
-                "statusCode": 400,
-                "headers": headers,
-                "body": json.dumps({"error": f"Could not find location for {city}"})
-            }
+            return {'statusCode': 400, 'headers': headers, 'body': json.dumps({"error": f"Could not find a valid location for '{normalized_city}'."})}
 
         lat, long = location.latitude, location.longitude
         
-        # Step 1: Get the NWS gridpoints for the lat/long
+        # NWS API Calls
         url = f'https://api.weather.gov/points/{lat},{long}'
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         forecast_url = response.json()['properties']['forecast']
 
-        # Step 2: Fetch the actual forecast data
         forecast_response = requests.get(forecast_url, timeout=10)
         forecast_response.raise_for_status()
-        
         all_periods = forecast_response.json()["properties"]["periods"]
 
         alerts = []
         weekly_forecast = []
+        custom_periods = [p for i, p in enumerate(all_periods) if i < 2 or (p.get('isDaytime') is True and "night" not in p.get('name', '').lower())]
         
-        # Step 3: Aggressively filter for the immediate 24 hours + subsequent days
-        custom_periods = []
-        for index, period in enumerate(all_periods):
-            if index < 2:
-                # Always grab the first two periods (Day 1 + Night 1)
-                custom_periods.append(period)
-            else:
-                # For everything else, strictly enforce daytime.
-                # 1. isDaytime MUST be explicitly True
-                is_daytime_flag = period.get('isDaytime') is True
-                
-                # 2. Fallback: string matching to ensure "night" isn't in the name
-                name_lower = period.get('name', '').lower()
-                has_night_in_name = "night" in name_lower or "overnight" in name_lower
-                
-                if is_daytime_flag and not has_night_in_name:
-                    custom_periods.append(period)
-        
-        # We grab 8 items total (2 immediate periods + 6 future days)
         for day in custom_periods[:8]:  
-            # 1. Build the alerts array
             alerts += getRain(day)
             alerts += getWind(day)
             alerts += getHeat(day)
             
-            # 2. Build the forecast UI array
             rain_prob = day.get('probabilityOfPrecipitation', {}).get('value')
             weekly_forecast.append({
                 "name": day.get("name", "Unknown"), 
@@ -113,28 +129,37 @@ def lambda_handler(event, context):
                 "shortForecast": day.get("shortForecast", "")
             })
 
-        # Step 4: Construct the final payload
-        response_body = {
-            "city": city,
-            "alerts": alerts,
-            "forecast": weekly_forecast
-        }
+        # ==========================================
+        # STEP 3: WRITE NET-NEW CITY TO THE DATABASE
+        # ==========================================
+        if weekly_forecast:
+            try:
+                table.put_item(
+                    Item={
+                        'city': normalized_city,
+                        'forecastType': 'weekly',
+                        'timestamp': datetime.utcnow().isoformat(),
+                        'currentTemperature': weekly_forecast[0]['temperature'], 
+                        'currentWind': weekly_forecast[0]['windSpeed'],
+                        'currentRainProbability': weekly_forecast[0]['rainProbability'], 
+                        'weeklyForecast': weekly_forecast
+                    }
+                )
+                print(f"CACHE WRITE: Saved {normalized_city} to database for future queries.")
+            except Exception as e:
+                print(f"Failed to write to cache: {e}")
 
         return {
             "statusCode": 200,
             "headers": headers,
-            "body": json.dumps(response_body)
+            "body": json.dumps({
+                "city": normalized_city,
+                "alerts": alerts,
+                "forecast": weekly_forecast
+            })
         }
 
     except requests.exceptions.RequestException as e:
-        return {
-            "statusCode": 502,
-            "headers": headers,
-            "body": json.dumps({"error": f"Network error while fetching forecast: {str(e)}"})
-        }
+        return {'statusCode': 502, 'headers': headers, 'body': json.dumps({"error": "Network error while fetching forecast."})}
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "headers": headers,
-            "body": json.dumps({"error": f"Unexpected error: {str(e)}"})
-        }
+        return {'statusCode': 500, 'headers': headers, 'body': json.dumps({"error": f"Unexpected error: {str(e)}"}) }
