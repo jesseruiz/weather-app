@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { fetchAuthSession } from 'aws-amplify/auth'; 
+import { fetchAuthSession } from 'aws-amplify/auth';
+import { API_BASE } from './api';
 
 export default function ManageAlerts() {
   const { user } = useAuthenticator((context) => [context.user]);
@@ -29,7 +30,7 @@ export default function ManageAlerts() {
 
         if (!token) throw new Error("No valid auth token found.");
 
-        const res = await fetch(`https://raj8a28np4.execute-api.us-east-1.amazonaws.com/get_user?id=${user.username}`, {
+        const res = await fetch(`${API_BASE}/get_user?id=${user.username}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`, 
@@ -90,7 +91,7 @@ export default function ManageAlerts() {
 
       if (!token) throw new Error("No valid auth token found.");
 
-      const response = await fetch('https://raj8a28np4.execute-api.us-east-1.amazonaws.com/update_user', {
+      const response = await fetch(`${API_BASE}/update_user`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

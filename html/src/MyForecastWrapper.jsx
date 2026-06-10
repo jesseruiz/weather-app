@@ -1,7 +1,7 @@
-// src/MyForecastWrapper.jsx
 import { useEffect, useState } from "react";
 import { useAuthenticator } from "@aws-amplify/ui-react";
 import { fetchAuthSession } from "aws-amplify/auth";
+import { API_BASE } from "./api";
 import MyForecast from "./MyForecast";
 
 export default function MyForecastWrapper() {
@@ -25,7 +25,7 @@ export default function MyForecastWrapper() {
         if (!token) return;
 
         const res = await fetch(
-          `https://raj8a28np4.execute-api.us-east-1.amazonaws.com/weekly?id=${encodeURIComponent(id)}`,
+          `${API_BASE}/weekly?id=${encodeURIComponent(id)}`,
           {
             method: 'GET',
             headers: {

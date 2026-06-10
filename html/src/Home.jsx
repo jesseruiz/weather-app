@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import { API_BASE } from './api';
 import './Home.css';
 
 const weatherAnimations = {
@@ -16,24 +17,25 @@ export default function Home() {
   const [alerts, setAlerts] = useState([]);
   const [forecast, setForecast] = useState([]);
   const [errorMsg, setErrorMsg] = useState("");
-  const [alertType, setAlertType] = useState("default");  
+  const [alertType, setAlertType] = useState("default");
   const [hasSearched, setHasSearched] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function getWeather() {
     if (!city) {
       setErrorMsg("No city entered. Please enter a valid city");
       return;
     }
-    
-    // Reset state before fetching a new city
+
     setErrorMsg("");
     setAlerts([]);
     setForecast([]);
     setHasSearched(false);
+    setLoading(true);
 
     try {
       const response = await fetch(
-        `https://raj8a28np4.execute-api.us-east-1.amazonaws.com/weather?city=${encodeURIComponent(city)}`
+        `${API_BASE}/weather?city=${encodeURIComponent(city)}`
       );
       
       const data = await response.json();
@@ -64,6 +66,8 @@ export default function Home() {
     } catch (error) {
       setErrorMsg("Error fetching weather: " + error.message);
       setAlertType("default");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -79,7 +83,9 @@ export default function Home() {
             onChange={(e) => setCity(e.target.value)}
             placeholder="Enter city (e.g., Los Angeles)"
           />
-          <button className="submitButton" onClick={getWeather}>Get Weather</button>
+          <button className="submitButton" onClick={getWeather} disabled={loading}>
+            {loading ? 'Loading...' : 'Get Weather'}
+          </button>
         </div>
         {errorMsg && <p className="error-text" style={{color: 'red', marginTop: '10px'}}>{errorMsg}</p>}
       </div>
