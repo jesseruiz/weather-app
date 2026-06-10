@@ -9,32 +9,24 @@ dynamodb = boto3.resource('dynamodb')
 user_table = dynamodb.Table('weather-app-table')
 cities_table = dynamodb.Table('weather-app-cities')
 
+def get_user_id_from_token(event):
+    return event.get("requestContext", {}).get("authorizer", {}).get("jwt", {}).get("claims", {}).get("sub")
+
 def lambda_handler(event, context):
-    cors_headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-        'Access-Control-Allow-Methods': 'OPTIONS,POST,PUT'
-    }
-    
+    # Reject any request that didn't come through the Cognito authorizer
+    user_id = get_user_id_from_token(event)
+    if not user_id:
+        return {'statusCode': 401, 'body': json.dumps({'error': 'Unauthorized'})}
+
     try:
         if not event.get('body'):
             return {
                 'statusCode': 400,
-                'headers': cors_headers,
+                
                 'body': json.dumps({'error': 'Missing request body'})
             }
-            
-        body = json.loads(event['body'])
-        
-        # Extract the Cognito ID from the payload
-        user_id = body.get('userId') or body.get('username')
 
-        if not user_id:
-            return {
-                'statusCode': 400,
-                'headers': cors_headers,
-                'body': json.dumps({'error': 'Cognito User ID is a required field.'})
-            }
+        body = json.loads(event['body'])
 
         # 1. Handle City Validation & Caching ONLY if a new city was provided
         city_name = body.get('city')
@@ -48,7 +40,7 @@ def lambda_handler(event, context):
             if not location:
                 return {
                     'statusCode': 400,
-                    'headers': cors_headers,
+                    
                     'body': json.dumps({'error': f"Could not find city '{city_name}'. Please check your spelling."})
                 }
             
@@ -103,31 +95,47 @@ def lambda_handler(event, context):
                     print(f"Warning: Failed to seed cache for {standardized_city_name}: {str(nws_error)}")
 
         # 2. Build a Dynamic Update Expression for the user profile table
-        update_parts = ["SET updatedAt = :u"]
+        update_parts = ["updatedAt = :u"]
+        remove_parts = []
         expr_values = {':u': datetime.utcnow().isoformat()}
         
-        # Maps incoming payload keys to database field names
+        # Standard fields mapping
         fields_to_map = {
             'email': 'email',              
             'emailEnable': 'emailEnable',
             'smsEnable': 'smsEnable',
-            'phoneNumber': 'phoneNumber'
+            'phoneNumber': 'phoneNumber',
+            'alertsEnabled': 'alertsEnabled',
+            'alertFrequency': 'alertFrequency'
         }
 
-        # Check for optional profile fields in the payload
+        # Dynamically build the SET parameters
         for incoming_key, db_field in fields_to_map.items():
             if incoming_key in body:
                 update_parts.append(f"{db_field} = :{incoming_key}")
                 expr_values[f":{incoming_key}"] = body[incoming_key]
 
-        # If a validated city exists, add it to the update statement
+        # If a validated city exists, add it to the SET statement
         if standardized_city_name:
             update_parts.append("city = :c")
             expr_values[':c'] = standardized_city_name
 
-        update_expression = ", ".join(update_parts)
+        # --- THE SPARSE INDEX LOGIC ---
+        # If the user is modifying their alert status, adjust the String key for the GSI
+        if 'alertsEnabled' in body:
+            if body['alertsEnabled'] is True:
+                update_parts.append("activeAlertStatus = :aas")
+                expr_values[':aas'] = "ACTIVE"
+            else:
+                # If they turn alerts off, completely remove the attribute so the index drops them
+                remove_parts.append("activeAlertStatus")
 
-        # 3. Executing the surgical update using 'id' as the primary key
+        # Assemble the final update string
+        update_expression = "SET " + ", ".join(update_parts)
+        if remove_parts:
+            update_expression += " REMOVE " + ", ".join(remove_parts)
+
+        # 3. Executing the surgical update
         print(f"Executing surgical update for user ID {user_id} with Expression: {update_expression}")
         user_table.update_item(
             Key={'id': user_id},
@@ -137,7 +145,7 @@ def lambda_handler(event, context):
 
         return {
             'statusCode': 200,
-            'headers': cors_headers,
+            
             'body': json.dumps({
                 'message': 'Profile settings updated successfully.',
                 'city': standardized_city_name if standardized_city_name else "Unchanged"
@@ -148,7 +156,6 @@ def lambda_handler(event, context):
         print(f"Critical error in updateUser: {str(e)}")
         return {
             'statusCode': 500,
-            'headers': cors_headers,
-            # Removed the temp error string logic here. Safe, generic message for the user!
-            'body': json.dumps({'error': 'An internal server error occurred while updating your profile.'}) 
+            
+            'body': json.dumps({'error': 'An internal server error occurred while updating your profile.'})
         }

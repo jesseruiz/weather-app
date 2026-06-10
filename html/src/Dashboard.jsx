@@ -11,7 +11,7 @@ export default function Dashboard() {
 
     const handleSuccess = () => {
         alert('user has been successfully deleted')
-        navigate('/')
+        window.location.href = '/';
     }
 
     const handleClick = () => {

@@ -42,17 +42,11 @@ def decimal_default(obj):
     raise TypeError
 
 def lambda_handler(event, context):
-    headers = {
-        "Access-Control-Allow-Origin": "*",  
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Content-Type": "application/json"
-    }
-
     query_params = event.get("queryStringParameters") or {}
     raw_city = query_params.get("city")
 
     if not raw_city:
-        return {'statusCode': 400, 'headers': headers, 'body': json.dumps({"error": "Missing city"})}
+        return {'statusCode': 400, 'body': json.dumps({"error": "Missing city"})}
         
     # 1. VALIDATION: Normalize Capitalization (e.g., "los angeles" -> "Los Angeles")
     normalized_city = raw_city.strip().title()
@@ -77,7 +71,7 @@ def lambda_handler(event, context):
                 
             return {
                 "statusCode": 200,
-                "headers": headers,
+                
                 "body": json.dumps({
                     "city": normalized_city,
                     "alerts": alerts,
@@ -97,7 +91,7 @@ def lambda_handler(event, context):
         # 2. VALIDATION: Geocoder checks if the city actually exists on Earth
         location = geolocator.geocode(normalized_city)
         if not location:
-            return {'statusCode': 400, 'headers': headers, 'body': json.dumps({"error": f"Could not find a valid location for '{normalized_city}'."})}
+            return {'statusCode': 400, 'body': json.dumps({"error": f"Could not find a valid location for '{normalized_city}'."})}
 
         lat, long = location.latitude, location.longitude
         
@@ -151,7 +145,7 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
-            "headers": headers,
+            
             "body": json.dumps({
                 "city": normalized_city,
                 "alerts": alerts,
@@ -160,6 +154,6 @@ def lambda_handler(event, context):
         }
 
     except requests.exceptions.RequestException as e:
-        return {'statusCode': 502, 'headers': headers, 'body': json.dumps({"error": "Network error while fetching forecast."})}
+        return {'statusCode': 502, 'body': json.dumps({"error": "Network error while fetching forecast."})}
     except Exception as e:
-        return {'statusCode': 500, 'headers': headers, 'body': json.dumps({"error": f"Unexpected error: {str(e)}"}) }
+        return {'statusCode': 500, 'body': json.dumps({"error": f"Unexpected error: {str(e)}"})}
