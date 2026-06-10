@@ -1,12 +1,8 @@
 import { useAuthenticator, AccountSettings } from '@aws-amplify/ui-react';
 import { useNavigate } from 'react-router';
 
-/* 
-Need to update account deletion to redirect to home
-*/
-
 export default function Dashboard() {
-    const { authStatus, user } = useAuthenticator((authState) => [authState.authStatus, authState.user]);
+    const { user } = useAuthenticator((authState) => [authState.user]);
     const navigate = useNavigate();
 
     const handleSuccess = () => {
@@ -15,7 +11,7 @@ export default function Dashboard() {
     }
 
     const handleClick = () => {
-      navigate('/Update-Password'); // Navigate to the dashboard page
+      navigate('/Update-Password');
     };
 
     const manageAlerts = () => {
@@ -25,9 +21,6 @@ export default function Dashboard() {
     return (
       <div className="dashboard">
         <h1 className="dashboard-header">Account Dashboard</h1>
-        <div>
-            <h3>Update Email</h3>
-        </div>
         <div>
             <h3>Manage Weather Alerts</h3>
             <button onClick={manageAlerts}>Manage Alerts</button>

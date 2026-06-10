@@ -1,5 +1,5 @@
 # Use AWS Lambda base image for Python 3.11
-FROM public.ecr.aws/lambda/python:3.11-slim
+FROM public.ecr.aws/lambda/python:3.11
 
 # Copy requirements.txt and install dependencies
 COPY src/requirements.txt ./

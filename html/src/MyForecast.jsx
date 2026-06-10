@@ -21,7 +21,7 @@ export default function MyForecast({ forecast }) {
             className={`forecast-card ${selectedDay === item.name ? "selected" : ""}`}
             onClick={() => setSelectedDay(item.name)} /* 3. UPDATED: Set state using item.name */
           >
-            <div className="day-label">**{item.name}**</div> {/* 4. UPDATED: Display item.name */}
+            <div className="day-label">{item.name}</div>
             <div className="weather-icon-placeholder"></div>
             
             {/* These already perfectly match your new optimized backend! */}

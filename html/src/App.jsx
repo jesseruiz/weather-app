@@ -6,8 +6,6 @@ import Contact from './Contact';
 import Dashboard from './Dashboard';
 import UpdatePassword from './UpdatePassword';
 import ManageAlerts from './ManageAlerts';
-import MyForecast from './MyForecast'
-
 import './amplify-configure';
 import './App.css';
 import MyForecastWrapper from './MyForecastWrapper';
@@ -74,12 +72,8 @@ function App() {
     <div className="app">
       <nav>
         <ul>
-          <li className='logo'><NavLink to="/">On A Heater!</NavLink></li>
+          <li className='logo'><NavLink to="/">Rain for thee</NavLink></li>
           <li><NavLink to="/">Home</NavLink></li>
-          <li><a href="https://buy.stripe.com/test_00w3cx64Gbirdf5cSzgUM00" target="_blank" rel="noopener noreferrer">
-              Donate
-              </a>
-          </li>
           {authStatus === 'authenticated' ? (
             <>
               <li><NavLink to="/MyForecast">My Forecast</NavLink></li>
@@ -129,7 +123,6 @@ function App() {
       </main>
 
       <footer className="footer">
-       {/*<WeatherSliderWrapper /> */}
       </footer>
     </div>
   );
