@@ -133,11 +133,11 @@ export default function ManageAlerts() {
   };
 
   if (status.loading && !originalSettings) {
-    return <div className="manage_alerts"><p>Loading settings...</p></div>;
+    return <div className="manage-alerts"><p>Loading settings...</p></div>;
   }
 
   return (
-    <div className="manage_alerts">
+    <div className="manage-alerts">
       <h2>Manage Weather Alerts</h2>
 
       {status.error && <p className="status-error">{status.error}</p>}

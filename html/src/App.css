@@ -40,6 +40,11 @@ nav a:hover {
   color: white;
 }
 
+.loading-session {
+  text-align: center;
+  margin-top: 50px;
+}
+
 /* ===== AMPLIFY AUTHENTICATOR STYLING ===== */
 
 /* Center the authenticator on the page */

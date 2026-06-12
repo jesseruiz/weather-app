@@ -1,8 +1,7 @@
-import { useAuthenticator, AccountSettings } from '@aws-amplify/ui-react';
+import { AccountSettings } from '@aws-amplify/ui-react';
 import { useNavigate } from 'react-router';
 
 export default function Dashboard() {
-    const { user } = useAuthenticator((authState) => [authState.user]);
     const navigate = useNavigate();
 
     const handleSuccess = () => {

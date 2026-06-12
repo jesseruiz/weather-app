@@ -2,13 +2,13 @@ import { useState } from 'react';
 import "./MyForecast.css";
 
 export default function MyForecast({ forecast }) {
-  // Guard Clause: If forecast is missing or empty, stop here.
+  const [selectedDay, setSelectedDay] = useState(
+    forecast && forecast.length > 0 ? forecast[0].name : null
+  );
+
   if (!forecast || forecast.length === 0) {
     return <p>No weekly data available.</p>;
   }
-  
-  // 1. UPDATED: Target .name instead of .day for the default selection
-  const [selectedDay, setSelectedDay] = useState(forecast[0].name);
 
   return (
     <div className="weekly-forecast">

@@ -1,4 +1,5 @@
 import { AccountSettings } from '@aws-amplify/ui-react';
+import './UpdatePassword.css';
 
 export default function UpdatePassword(){
 
@@ -7,7 +8,7 @@ export default function UpdatePassword(){
     }
 
     return(
-        <div className='UpdatePassword'>
+        <div className="update-password">
             <h3>Update Password</h3>
             <AccountSettings.ChangePassword onSuccess={handleSuccess}/>
         </div>

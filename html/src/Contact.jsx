@@ -30,7 +30,7 @@ function ContactForm() {
       } else {
         alert("Failed to send message. Please try again.");
       }
-    } catch (error) {
+    } catch {
       alert("An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);

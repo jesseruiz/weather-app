@@ -1,9 +1,9 @@
-.manage_alerts .status-error {
+.manage-alerts .status-error {
   color: red;
   font-weight: bold;
 }
 
-.manage_alerts .status-success {
+.manage-alerts .status-success {
   color: green;
   font-weight: bold;
 }
