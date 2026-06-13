@@ -37,10 +37,8 @@ def lambda_handler(event, context):
                 'id': user_id,
                 'email': email,
                 'city': normalized_city,
-                'subscription': 'basic',
-                # 🛠️ UPDATED: Using the standardized camelCase keys matching React!
                 'emailEnable': False,
-                'textEnable': False,
+                'smsEnable': False,
                 'alertsEnabled': False,
                 'alertFrequency': 'Any Change'
             },

@@ -71,10 +71,12 @@ def lambda_handler(event, context):
         users = []
         for record in event['Records']:
             data = json.loads(record['body'])
-            users.append({
-                'email': data['email'],
-                'city':  data['city']
-            })
+            email = data.get('email')
+            city = data.get('city')
+            if not email or not city:
+                print(f"Skipping malformed SQS record: {record['body']}")
+                continue
+            users.append({'email': email, 'city': city})
 
         unique_cities = set(user['city'] for user in users)
 
