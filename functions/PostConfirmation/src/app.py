@@ -42,6 +42,7 @@ def lambda_handler(event, context):
         print("PutItem response:", put_response)
     except ClientError as e:
         print("Failed to save user:", e.response['Error']['Message'])
+        raise
 
 
     # ==========================================
