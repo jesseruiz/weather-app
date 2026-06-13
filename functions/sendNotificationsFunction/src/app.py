@@ -1,16 +1,16 @@
 import boto3
 import json
+import os
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('weather-app-table')
 citiesWeather = dynamodb.Table('weather-app-cities')
-sqs = boto3.client('sqs')
 ses = boto3.client('ses')
-QUEUE_URL = 'https://sqs.us-east-1.amazonaws.com/745167176709/Weather-Alerts'
+
+SES_SENDER_EMAIL = os.environ['SES_SENDER_EMAIL']
 
 def getUserWeather(city):
     try:
-        # 1. FIXED: Change 'daily' to 'weekly'
         response = citiesWeather.get_item(
             Key={'city': city, 'forecastType': 'weekly'}
         )
@@ -25,7 +25,6 @@ def getUserWeather(city):
 
 def send_weather_email(email, weather_data):
     try:
-        # 2. FIXED: Pull directly from the new top-level database attributes
         city             = weather_data['city']
         temperature      = int(weather_data['currentTemperature'])
         wind_speed       = weather_data['currentWind']
@@ -55,7 +54,7 @@ def send_weather_email(email, weather_data):
         """
 
         ses.send_email(
-            Source='weather@rainforthee.com',
+            Source=SES_SENDER_EMAIL,
             Destination={'ToAddresses': [email]},
             Message={
                 'Subject': {'Data': f"🌤️ Your Daily Weather Report for {city}"},
@@ -67,37 +66,29 @@ def send_weather_email(email, weather_data):
         print(f"Error sending email to {email}: {e}")
 
 
-
 def lambda_handler(event, context):
     try:
-        # ── Step 1: Unpack all records from SQS ───────────────────────────────
-        # Each record is one user: { email: ..., city: ... }
         users = []
         for record in event['Records']:
             data = json.loads(record['body'])
-            users.append({
-                'email': data['email'],
-                'city':  data['city']
-            })
+            email = data.get('email')
+            city = data.get('city')
+            if not email or not city:
+                print(f"Skipping malformed SQS record: {record['body']}")
+                continue
+            users.append({'email': email, 'city': city})
 
-        # ── Step 2: Deduplicate cities ────────────────────────────────────────
-        # Build a unique set of cities across all users in this batch
-        # e.g. 10 users in Seattle → only fetch Seattle's weather once
         unique_cities = set(user['city'] for user in users)
 
-        # ── Step 3: Fetch weather once per unique city ────────────────────────
-        # Store results in a dict so we can reuse them
-        # e.g. { 'Seattle': { temp: 47, wind: ... }, 'Austin': { ... } }
         weather_cache = {}
         for city in unique_cities:
             weather = getUserWeather(city)
             if weather:
                 weather_cache[city] = weather
 
-        # ── Step 4: Send each user their email using the cached weather ────────
         for user in users:
-            city    = user['city']
-            email   = user['email']
+            city  = user['city']
+            email = user['email']
 
             if city not in weather_cache:
                 print(f"Skipping {email} — no weather data for {city}")
@@ -107,3 +98,5 @@ def lambda_handler(event, context):
 
     except Exception as e:
         print(f"Error in lambda_handler: {e}")
+
+    return {'statusCode': 200, 'body': 'Success'}

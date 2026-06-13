@@ -66,14 +66,3 @@
     font-size: 1.1rem;
   }
   
-  /* Bottom detail box */
-  .forecast-detail {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    padding: 20px 30px;
-    width: 90%;
-    max-width: 700px;
-    text-align: center;
-  }
-  

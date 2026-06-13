@@ -1,0 +1,29 @@
+.contact-form-wrapper {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.contact-field {
+  margin-bottom: 15px;
+}
+
+.contact-field input,
+.contact-field textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+}
+
+.btn-contact-submit {
+  background: #F9980B;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-contact-submit:disabled {
+  cursor: not-allowed;
+}

@@ -7,7 +7,13 @@ from datetime import datetime
 
 dynamodb = boto3.resource('dynamodb')
 user_table = dynamodb.Table('weather-app-table')
-city_table = dynamodb.Table('weather-app-cities') # Add the cities table
+city_table = dynamodb.Table('weather-app-cities')
+
+def filter_forecast_periods(all_periods):
+    return [
+        p for i, p in enumerate(all_periods)
+        if i < 2 or (p.get('isDaytime') is True and "night" not in p.get('name', '').lower())
+    ]
 
 def lambda_handler(event, context):
     print("Post Confirmation Event:")
@@ -31,10 +37,8 @@ def lambda_handler(event, context):
                 'id': user_id,
                 'email': email,
                 'city': normalized_city,
-                'subscription': 'basic',
-                # 🛠️ UPDATED: Using the standardized camelCase keys matching React!
                 'emailEnable': False,
-                'textEnable': False,
+                'smsEnable': False,
                 'alertsEnabled': False,
                 'alertFrequency': 'Any Change'
             },
@@ -42,6 +46,7 @@ def lambda_handler(event, context):
         print("PutItem response:", put_response)
     except ClientError as e:
         print("Failed to save user:", e.response['Error']['Message'])
+        raise
 
 
     # ==========================================
@@ -76,11 +81,8 @@ def lambda_handler(event, context):
                 forecast_res.raise_for_status()
                 all_periods = forecast_res.json()["properties"]["periods"]
 
-                # Filter Daytime periods
                 weekly_forecast = []
-                custom_periods = [p for i, p in enumerate(all_periods) if i < 2 or (p.get('isDaytime') is True and "night" not in p.get('name', '').lower())]
-                
-                for day in custom_periods[:8]:
+                for day in filter_forecast_periods(all_periods)[:8]:
                     rain_prob = day.get('probabilityOfPrecipitation', {}).get('value')
                     weekly_forecast.append({
                         "name": day.get("name", "Unknown"), 

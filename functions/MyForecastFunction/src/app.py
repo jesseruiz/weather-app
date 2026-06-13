@@ -3,13 +3,19 @@ import json
 from decimal import Decimal
 from boto3.dynamodb.conditions import Key
 
+dynamodb = boto3.resource('dynamodb')
+user_table = dynamodb.Table('weather-app-table')
+city_table = dynamodb.Table('weather-app-cities')
+
 
 def getUserCity(usrID):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('weather-app-table')
     try:
-        response = table.query(KeyConditionExpression=Key("id").eq(str(usrID)))
-        return response['Items'][0]['city']
+        response = user_table.query(KeyConditionExpression=Key("id").eq(str(usrID)))
+        items = response.get('Items', [])
+        if not items:
+            print(f"No user record found for id: {usrID}")
+            return None
+        return items[0]['city']
     except Exception as e:
         print(f"Error querying user city: {e}")
         return None
@@ -24,10 +30,8 @@ def convert_decimals(obj):
     return obj
 
 def getWeather(city):
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('weather-app-cities')
     try:
-        response = table.query(
+        response = city_table.query(
             KeyConditionExpression=Key("city").eq(city) & Key("forecastType").eq("weekly")
         )
         return response['Items']

@@ -39,7 +39,7 @@ function ProtectedRoute({ children }) {
 
   // If Amplify is still checking local storage, show a loading state
   if (authStatus === 'configuring') {
-    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading session...</div>;
+    return <div className="loading-session">Loading session...</div>;
   }
 
   // Once it finishes configuring, decide whether to show the page or kick them to login
@@ -59,8 +59,7 @@ function LoginRedirect() {
 
 function App() {
 
-  const { authStatus, user, signOut } = useAuthenticator((ctx) => [ctx.authStatus, ctx.user]);
-  const navigate = useNavigate();
+  const { authStatus, signOut } = useAuthenticator((ctx) => [ctx.authStatus, ctx.user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -114,7 +113,7 @@ function App() {
           {/* Login page with Amplify UI */}
           <Route path="/login" element={
               <Authenticator formFields={formFields} loginMechanisms={['email']} signUpAttributes={['custom:City']}>
-              {({ signOut, user }) => (
+              {() => (
                 <LoginRedirect />
               )}
             </Authenticator>

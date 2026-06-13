@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./Contact.css";
 
 function ContactForm() {
   const [formData, setFormData] = useState({
@@ -29,7 +30,7 @@ function ContactForm() {
       } else {
         alert("Failed to send message. Please try again.");
       }
-    } catch (error) {
+    } catch {
       alert("An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -44,10 +45,10 @@ function ContactForm() {
   };
 
   return (
-    <div style={{ maxWidth: "500px", margin: "0 auto", padding: "20px" }}>
+    <div className="contact-form-wrapper">
       <h2>Contact Us</h2>
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "15px" }}>
+        <div className="contact-field">
           <label htmlFor="name">Name:</label>
           <input
             type="text"
@@ -55,11 +56,10 @@ function ContactForm() {
             value={formData.name}
             onChange={handleChange}
             required
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
           />
         </div>
 
-        <div style={{ marginBottom: "15px" }}>
+        <div className="contact-field">
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -67,11 +67,10 @@ function ContactForm() {
             value={formData.email}
             onChange={handleChange}
             required
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
           />
         </div>
 
-        <div style={{ marginBottom: "15px" }}>
+        <div className="contact-field">
           <label htmlFor="message">Message:</label>
           <textarea
             name="message"
@@ -79,21 +78,13 @@ function ContactForm() {
             onChange={handleChange}
             required
             rows="5"
-            style={{ width: "100%", padding: "8px", marginTop: "5px" }}
           />
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          style={{
-            background: "#F9980B",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            borderRadius: "4px",
-            cursor: isSubmitting ? "not-allowed" : "pointer"
-          }}
+          className="btn-contact-submit"
         >
           {isSubmitting ? "Sending..." : "Send Message"}
         </button>

@@ -12,9 +12,7 @@ def decimal_default(obj):
 
 def checkUser(user_id):
     response = table.get_item(Key={'id': user_id})
-    if 'Item' not in response:
-        return {}
-    return response['Item']
+    return response.get('Item')
 
 def lambda_handler(event, context):
     query_params = event.get("queryStringParameters") or {}
@@ -25,6 +23,8 @@ def lambda_handler(event, context):
 
     try:
         user = checkUser(user_id)
+        if user is None:
+            return {'statusCode': 404, 'body': json.dumps({'error': 'User not found'})}
         return {'statusCode': 200, 'body': json.dumps(user, default=decimal_default)}
 
     except Exception as e:
