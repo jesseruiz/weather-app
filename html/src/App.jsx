@@ -71,7 +71,7 @@ function App() {
     <div className="app">
       <nav>
         <ul>
-          <li className='logo'><NavLink to="/">Rain for thee</NavLink></li>
+          <li className='logo'><NavLink to="/">Rain for Thee</NavLink></li>
           <li><NavLink to="/">Home</NavLink></li>
           {authStatus === 'authenticated' ? (
             <>

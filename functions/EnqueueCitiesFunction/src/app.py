@@ -43,7 +43,7 @@ def lambda_handler(event, context):
             all_periods = forecast_response.json()["properties"]["periods"]
 
             weekly_forecast = []
-            for day in filter_forecast_periods(all_periods)[:8]:
+            for day in filter_forecast_periods(all_periods)[:7]:
                 rain_prob = day.get('probabilityOfPrecipitation', {}).get('value')
                 weekly_forecast.append({
                     "name": day.get("name", "Unknown"),

@@ -12,28 +12,22 @@ export default function MyForecast({ forecast }) {
 
   return (
     <div className="weekly-forecast">
-      <h1 className="forecast-title">Weekly Forecast</h1>
-
-      <div className="forecast-card-row">
+      <div className="forecast-grid">
         {forecast.map((item) => (
           <div
-            key={item.name} /* 2. UPDATED: Use item.name for the key */
-            className={`forecast-card ${selectedDay === item.name ? "selected" : ""}`}
-            onClick={() => setSelectedDay(item.name)} /* 3. UPDATED: Set state using item.name */
+            key={item.name}
+            className={`forecast-card ${selectedDay === item.name ? 'selected' : ''}`}
+            onClick={() => setSelectedDay(item.name)}
           >
-            <div className="day-label">{item.name}</div>
-            <div className="weather-icon-placeholder"></div>
-            
-            {/* These already perfectly match your new optimized backend! */}
-            <div className="temp-placeholder">Temp: {item.temperature}°F</div>
-            <div className="wind-placeholder">Wind: {item.windSpeed}</div>
-            <div className="rain-placeholder">Rain: {item.rainProbability}%</div>
+            <h3 className="forecast-day">{item.name}</h3>
+            <p className="forecast-desc">{item.shortForecast}</p>
+            <div className="forecast-stats">
+              <span className="temp">{item.temperature}°F</span>
+              <span className="rain">💧 {item.rainProbability}%</span>
+              <span className="wind">💨 {item.windSpeed}</span>
+            </div>
           </div>
         ))}
-      </div>
-
-      <div className="selected-details">
-        <h3>Showing details for: {selectedDay}</h3>
       </div>
     </div>
   );
