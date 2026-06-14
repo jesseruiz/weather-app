@@ -1,68 +1,45 @@
+.forecast-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.forecast-title {
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.current-conditions {
+  font-size: 1.1rem;
+  color: #F9980B;
+  margin-bottom: 1.5rem;
+}
+
 .weekly-forecast {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 30px;
-    font-family: system-ui, sans-serif;
-    color: #333;
-  }
-  
-  .forecast-title {
-    margin-bottom: 20px;
-    color: white;
-  }
-  
-  /* Row of cards */
-  .forecast-card-row {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 1200px;
-  }
-  
-  /* Each card */
-  .forecast-card {
-    background: #f7f7f7;
-    border-radius: 10px;
-    width: 150px;
-    height: 240px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  }
-  
-  .forecast-card:hover {
-    transform: translateY(-3px);
-    background: #e9f2ff;
-  }
-  
-  .forecast-card.selected {
-    background: #F9980B;
-    color: #fff;
-    transform: translateY(-3px);
-  }
-  
-  .day-label {
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-  
-  .weather-icon-placeholder {
-    width: 40px;
-    height: 40px;
-    background: #ddd;
-    border-radius: 50%;
-    margin-bottom: 8px;
-  }
-  
-  .temp-placeholder {
-    font-size: 1.1rem;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  width: min(1100px, 95vw);
+  margin: 0 auto;
+}
+
+.forecast-card {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.forecast-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.forecast-card.selected {
+  border-color: #F9980B;
+  box-shadow: 0 0 0 2px #F9980B;
+}
+
+.forecast-card.selected .forecast-day {
+  color: #F9980B;
+}

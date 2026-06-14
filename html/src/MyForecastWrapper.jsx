@@ -57,14 +57,13 @@ export default function MyForecastWrapper() {
   if (loading) return <p>Loading weather...</p>;
 
   return (
-    <div style={{ textAlign: 'center', padding: '20px' }}>
-      <h1>Forecast for {city || "your area"}</h1>
-      
-      {/* NEW: Displaying the top-level stats we just added to the DB! */}
+    <div className="forecast-wrapper">
+      <h1 className="forecast-title">Forecast for {city || "your area"}</h1>
+
       {forecastData && (
-        <div style={{ margin: '20px 0', fontSize: '1.2rem', color: '#F9980B' }}>
-            <p><strong>Right Now:</strong> {forecastData.currentTemperature}°F | 💨 {forecastData.currentWind} | 💧 {forecastData.currentRainProbability}%</p>
-        </div>
+        <p className="current-conditions">
+          <strong>Right Now:</strong> {forecastData.currentTemperature}°F | 💨 {forecastData.currentWind} | 💧 {forecastData.currentRainProbability}%
+        </p>
       )}
 
       {forecastData?.weeklyForecast ? (
