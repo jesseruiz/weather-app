@@ -65,7 +65,7 @@ def lambda_handler(event, context):
             weekly_forecast = cached_item.get('weeklyForecast', [])
 
             alerts = []
-            for day in weekly_forecast[:8]:
+            for day in weekly_forecast[:7]:
                 alerts += getRain(day)
                 alerts += getWind(day)
                 alerts += getHeat(day)
@@ -103,7 +103,7 @@ def lambda_handler(event, context):
 
         alerts = []
         weekly_forecast = []
-        for day in filter_forecast_periods(all_periods)[:8]:
+        for day in filter_forecast_periods(all_periods)[:7]:
             alerts += getRain(day)
             alerts += getWind(day)
             alerts += getHeat(day)

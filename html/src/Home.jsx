@@ -1,20 +1,31 @@
 import React, { useState } from 'react';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { API_BASE } from './api';
 import './Home.css';
 
-const weatherAnimations = {
-    rain: "./Rainy.lottie",
-    windy: "./wind.lottie",
-    heat: "./ThermometerHot.lottie",
+const ALERT_LABELS = {
+  heat: 'Heat Alert',
+  rain: 'Rain Alert',
+  wind: 'Wind Alert',
 };
+
+function parseAlertDays(alerts) {
+  const days = {};
+  alerts.forEach(alert => {
+    const match = alert.match(/on (\w+)/);
+    if (!match) return;
+    const day = match[1];
+    if (alert.startsWith('Heat')) days[day] = 'heat';
+    else if (alert.startsWith('Rain')) days[day] = 'rain';
+    else if (alert.startsWith('High winds')) days[day] = 'wind';
+  });
+  return days;
+}
 
 export default function Home() {
   const [city, setCity] = useState("");
   const [alerts, setAlerts] = useState([]);
   const [forecast, setForecast] = useState([]);
   const [errorMsg, setErrorMsg] = useState("");
-  const [alertType, setAlertType] = useState("default");
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -46,30 +57,19 @@ export default function Home() {
       setForecast(data.forecast || []);
       setHasSearched(true);
 
-      const lowerText = (data.alerts || []).join(" ").toLowerCase();
-
-      if (lowerText.includes("heat")) {
-        setAlertType("heat");
-      } else if (lowerText.includes("wind")) {
-        setAlertType("windy");
-      } else if (lowerText.includes("rain")) {
-        setAlertType("rain");
-      } else {
-        setAlertType("default");
-      }
-
     } catch (error) {
       setErrorMsg("Error fetching weather: " + error.message);
-      setAlertType("default");
     } finally {
       setLoading(false);
     }
   }
 
+  const alertDays = parseAlertDays(alerts);
+
   return (
-    <div className={`home ${alertType}`}>
+    <div className="home">
       <div className={`main-content ${hasSearched ? 'shifted' : ''}`}>
-        <h1 className="main-header">Check Weather Alerts & Forecast</h1>
+        <h1 className={`main-header ${hasSearched ? 'compact' : ''}`}>Check Weather Alerts & Forecast</h1>
         <div className="submit-field">
           <input
             className="input-field"
@@ -77,6 +77,7 @@ export default function Home() {
             value={city}
             onChange={(e) => setCity(e.target.value)}
             placeholder="Enter city (e.g., Los Angeles)"
+            onKeyDown={(e) => e.key === 'Enter' && getWeather()}
           />
           <button className="submit-button" onClick={getWeather} disabled={loading}>
             {loading ? 'Loading...' : 'Get Weather'}
@@ -86,49 +87,32 @@ export default function Home() {
       </div>
 
       {hasSearched && (
-        <div className={`response-card alert-container ${alertType}`}>
+        <div className="response-card">
           <div className="response-content">
-
-            {alerts.length > 0 && (
-              <div className="alerts-section">
-                <div className="alerts-text">
-                  <h2>Active Alerts</h2>
-                  <ul className="alerts-list">
-                    {alerts.map((alert, index) => (
-                      <li key={index} className="alert-item">{alert}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                {weatherAnimations[alertType] && alertType !== "default" && (
-                  <div className="lottie-container">
-                    <DotLottieReact
-                      src={weatherAnimations[alertType]}
-                      loop
-                      autoplay
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
             <div className="forecast-section">
               <h2>7-Day Forecast</h2>
               <div className="forecast-grid">
-                {forecast.map((day, index) => (
-                  <div key={index} className="forecast-card">
-                    <h3 className="forecast-day">{day.name}</h3>
-                    <p className="forecast-desc">{day.shortForecast}</p>
-                    <div className="forecast-stats">
-                      <span className="temp">{day.temperature}°F</span>
-                      <span className="rain">💧 {day.rainProbability}%</span>
-                      <span className="wind">💨 {day.windSpeed}</span>
+                {forecast.map((day, index) => {
+                  const alertType = alertDays[day.name];
+                  return (
+                    <div key={index} className={`forecast-card ${alertType ? `has-alert-${alertType}` : ''}`}>
+                      {alertType && (
+                        <span className={`alert-badge alert-badge-${alertType}`}>
+                          {ALERT_LABELS[alertType]}
+                        </span>
+                      )}
+                      <h3 className="forecast-day">{day.name}</h3>
+                      <p className="forecast-desc">{day.shortForecast}</p>
+                      <div className="forecast-stats">
+                        <span className="temp">{day.temperature}°F</span>
+                        <span className="rain">💧 {day.rainProbability}%</span>
+                        <span className="wind">💨 {day.windSpeed}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
-
           </div>
         </div>
       )}
