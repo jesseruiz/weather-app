@@ -55,7 +55,12 @@ def lambda_handler(event, context):
         if result is None:
             return {'statusCode': 500, 'body': json.dumps({"error": "Failed to fetch weather data"})}
 
-        return {'statusCode': 200, 'body': json.dumps(convert_decimals(result))}
+        capped = []
+        for item in result:
+            if 'weeklyForecast' in item:
+                item['weeklyForecast'] = item['weeklyForecast'][:7]
+            capped.append(item)
+        return {'statusCode': 200, 'body': json.dumps(convert_decimals(capped))}
 
     except Exception as e:
         print(f"Error in lambda_handler: {e}")
