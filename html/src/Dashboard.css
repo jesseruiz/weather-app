@@ -1,10 +1,90 @@
 .dashboard {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
 }
 
 .dashboard-header {
-  margin-bottom: 30px;
   text-align: center;
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.dashboard-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.dashboard-card-title {
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  min-width: 140px;
+}
+
+.dashboard-card-desc {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.875rem;
+  margin: 0;
+  flex: 1;
+}
+
+.dashboard-btn {
+  height: 42px;
+  padding: 0 20px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background: #333;
+  color: white;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.dashboard-btn:hover {
+  background-color: #F9980B;
+}
+
+/* Danger card — delete account */
+.dashboard-card-danger {
+  border-color: rgba(220, 53, 53, 0.3);
+}
+
+.dashboard-card-danger .dashboard-card-title {
+  color: #ff6b6b;
+}
+
+/* Override Amplify's DeleteUser button to match site style */
+.dashboard-card-danger .amplify-button--destructive {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background: #333;
+  color: #ff6b6b;
+  border: 1px solid rgba(220, 53, 53, 0.4);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.dashboard-card-danger .amplify-button--destructive:hover {
+  background: #c0392b;
+  color: white;
+  border-color: #c0392b;
 }
