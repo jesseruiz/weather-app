@@ -94,6 +94,8 @@ def lambda_handler(event, context):
 
         url = f'https://api.weather.gov/points/{lat},{long}'
         response = requests.get(url, timeout=10)
+        if response.status_code == 404:
+            return {'statusCode': 400, 'body': json.dumps({"error": f"'{normalized_city}' is outside the US. This app currently only supports US cities."})}
         response.raise_for_status()
         forecast_url = response.json()['properties']['forecast']
 
