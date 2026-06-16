@@ -63,28 +63,65 @@
 /* Danger card — delete account */
 .dashboard-card-danger {
   border-color: rgba(220, 53, 53, 0.3);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 .dashboard-card-danger .dashboard-card-title {
   color: #ff6b6b;
 }
 
-/* Override Amplify's DeleteUser button to match site style */
+/* Amplify DeleteUser — initial delete button */
 .dashboard-card-danger .amplify-button--destructive {
   height: 42px;
   padding: 0 20px;
   border-radius: 6px;
   font-weight: 600;
   font-size: 0.875rem;
-  background: #333;
+  background: transparent;
   color: #ff6b6b;
   border: 1px solid rgba(220, 53, 53, 0.4);
   transition: background-color 0.2s ease, color 0.2s ease;
-  white-space: nowrap;
+  cursor: pointer;
 }
 
 .dashboard-card-danger .amplify-button--destructive:hover {
   background: #c0392b;
   color: white;
   border-color: #c0392b;
+}
+
+/* Amplify DeleteUser — confirmation dialog */
+.dashboard-card-danger .amplify-alert {
+  background: rgba(220, 53, 53, 0.08);
+  border: 1px solid rgba(220, 53, 53, 0.25);
+  border-radius: 8px;
+  color: white;
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dashboard-card-danger .amplify-button--small {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Cancel button */
+.dashboard-card-danger .amplify-button--small:not(.amplify-button--destructive) {
+  background: #333;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Confirm delete button */
+.dashboard-card-danger .amplify-button--small.amplify-button--destructive {
+  background: #c0392b;
+  color: white;
+  border: none;
 }

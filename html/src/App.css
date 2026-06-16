@@ -40,6 +40,21 @@ nav a:hover {
   color: white;
 }
 
+nav li button {
+  color: white;
+  font-size: x-large;
+  padding: 1rem 2rem;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+nav li button:hover {
+  background-color: #F9980B;
+}
+
 .loading-session {
   text-align: center;
   margin-top: 50px;

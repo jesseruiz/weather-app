@@ -23,6 +23,7 @@ function parseAlertDays(alerts) {
 
 export default function Home() {
   const [city, setCity] = useState("");
+  const [resultCity, setResultCity] = useState("");
   const [alerts, setAlerts] = useState([]);
   const [forecast, setForecast] = useState([]);
   const [errorMsg, setErrorMsg] = useState("");
@@ -55,6 +56,7 @@ export default function Home() {
 
       setAlerts(data.alerts || []);
       setForecast(data.forecast || []);
+      setResultCity(data.city || city);
       setHasSearched(true);
 
     } catch (error) {
@@ -76,7 +78,7 @@ export default function Home() {
             type="text"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            placeholder="Enter city (e.g., Los Angeles)"
+            placeholder="City or City, State (e.g. Springfield, IL)"
             onKeyDown={(e) => e.key === 'Enter' && getWeather()}
           />
           <button className="submit-button" onClick={getWeather} disabled={loading}>
@@ -90,7 +92,7 @@ export default function Home() {
         <div className="response-card">
           <div className="response-content">
             <div className="forecast-section">
-              <h2>7-Day Forecast</h2>
+              <h2>7-Day Forecast for {resultCity}</h2>
               <div className="forecast-grid">
                 {forecast.map((day, index) => {
                   const alertType = alertDays[day.name];
