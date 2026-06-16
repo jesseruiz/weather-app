@@ -53,7 +53,13 @@ def lambda_handler(event, context):
     if not raw_city:
         return {'statusCode': 400, 'body': json.dumps({"error": "Missing city"})}
 
-    normalized_city = raw_city.strip().title()
+    parts = raw_city.strip().split(',')
+    city_part = parts[0].strip().title()
+    if len(parts) > 1:
+        state_part = parts[1].strip().upper()
+        normalized_city = f"{city_part}, {state_part}"
+    else:
+        normalized_city = city_part
 
     # Check cache first
     try:
@@ -86,7 +92,7 @@ def lambda_handler(event, context):
     geolocator = Nominatim(user_agent="weather_lambda_app", timeout=5)
 
     try:
-        location = geolocator.geocode(normalized_city)
+        location = geolocator.geocode(f"{normalized_city}, USA")
         if not location:
             return {'statusCode': 400, 'body': json.dumps({"error": f"Could not find a valid location for '{normalized_city}'."})}
 

@@ -76,7 +76,7 @@ export default function Home() {
             type="text"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            placeholder="Enter city (e.g., Los Angeles)"
+            placeholder="City or City, State (e.g. Springfield, IL)"
             onKeyDown={(e) => e.key === 'Enter' && getWeather()}
           />
           <button className="submit-button" onClick={getWeather} disabled={loading}>
