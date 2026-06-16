@@ -46,15 +46,24 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
-// 🛠️ LoginRedirect: Moved outside of the App component to prevent memory leaks and infinite loops
 function LoginRedirect() {
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    navigate('/');
-  }, [navigate]);
-  
+  useEffect(() => { navigate('/'); }, [navigate]);
   return null;
+}
+
+function LoginPage() {
+  return (
+    <div className="login-page">
+      <div className="login-branding">
+        <h1>Rain for Thee</h1>
+        <p>Weather forecasts and alerts for your city</p>
+      </div>
+      <Authenticator formFields={formFields} loginMechanisms={['email']} signUpAttributes={['custom:City']}>
+        {() => <LoginRedirect />}
+      </Authenticator>
+    </div>
+  );
 }
 
 function App() {
@@ -110,14 +119,7 @@ function App() {
             </ProtectedRoute>
           } />
 
-          {/* Login page with Amplify UI */}
-          <Route path="/login" element={
-              <Authenticator formFields={formFields} loginMechanisms={['email']} signUpAttributes={['custom:City']}>
-              {() => (
-                <LoginRedirect />
-              )}
-            </Authenticator>
-          } />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </main>
 

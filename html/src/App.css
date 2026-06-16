@@ -45,19 +45,51 @@ nav a:hover {
   margin-top: 50px;
 }
 
-/* ===== AMPLIFY AUTHENTICATOR STYLING ===== */
+/* ===== LOGIN PAGE ===== */
 
-/* Center the authenticator on the page */
-[data-amplify-authenticator] {
+.login-page {
+  min-height: calc(100vh - 72px);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  margin-top: 8em;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem 1rem;
 }
 
-/* Remove the "Welcome Back" text */
+.login-branding {
+  text-align: center;
+}
+
+.login-branding h1 {
+  color: white;
+  font-size: 2rem;
+  margin: 0 0 0.4rem 0;
+}
+
+.login-branding p {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* ===== AMPLIFY AUTHENTICATOR STYLING ===== */
+
+[data-amplify-authenticator] {
+  --amplify-components-authenticator-router-border-width: 0;
+}
+
 [data-amplify-authenticator]::before {
   display: none;
+}
+
+[data-amplify-authenticator] .amplify-authenticator__content,
+[data-amplify-authenticator] .amplify-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  min-width: 400px;
 }
 
 [data-amplify-authenticator] .amplify-visually-hidden {
@@ -65,9 +97,10 @@ nav a:hover {
 }
 
 [data-amplify-authenticator] .amplify-tabs__item {
-  background-color: #333;
-  color: white;
-  padding-right: 30px;
+  background-color: #2a2a2a;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+  border: none;
 }
 
 [data-amplify-authenticator] .amplify-tabs__item--active {
@@ -77,20 +110,31 @@ nav a:hover {
 
 [data-amplify-authenticator] .amplify-flex {
   border: none;
-  background-color: #333;
+  background-color: #2a2a2a;
+}
+
+[data-amplify-authenticator] .amplify-label {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+[data-amplify-authenticator] .amplify-input {
+  background-color: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: white;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+[data-amplify-authenticator] .amplify-input:focus {
+  border-color: #F9980B;
+  box-shadow: 0 0 0 2px rgba(249, 152, 11, 0.2);
+  outline: none;
 }
 
 [data-amplify-authenticator] .amplify-field {
   margin-top: 1rem;
-}
-
-[data-amplify-authenticator] .amplify-button--primary {
-  background-color: #F9980B;
-  color: white;
-}
-
-[data-amplify-authenticator] .amplify-textfield {
-  padding-left: 5px;
 }
 
 [data-amplify-authenticator] .amplify-field-group--horizontal {
@@ -99,16 +143,35 @@ nav a:hover {
 
 [data-amplify-authenticator] .amplify-field__show-password {
   background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: none;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 [data-amplify-authenticator] .amplify-button--primary {
-  margin-left: 3rem;
-  padding-left: 50px;
-  padding-right: 50px;
+  background-color: #F9980B;
+  color: white;
+  font-weight: 700;
+  border-radius: 6px;
+  border: none;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  margin: 0;
+  padding: 0.75rem;
+}
+
+[data-amplify-authenticator] .amplify-button--primary:hover {
+  background-color: #e08800;
 }
 
 [data-amplify-authenticator] .amplify-button--link {
   background: transparent;
-  font-size: small;
-  margin-left: 2.5rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+[data-amplify-authenticator] .amplify-button--link:hover {
+  color: #F9980B;
+  background: transparent;
 }
