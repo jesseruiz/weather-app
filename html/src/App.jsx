@@ -1,6 +1,7 @@
 import { Routes, Route, NavLink, Navigate, useNavigate } from 'react-router';
 import { useEffect } from 'react';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
+import { signOut as amplifySignOut } from 'aws-amplify/auth';
 import Home from './Home';
 import Contact from './Contact';
 import Dashboard from './Dashboard';
@@ -68,12 +69,11 @@ function LoginPage() {
 
 function App() {
 
-  const { authStatus, signOut } = useAuthenticator((ctx) => [ctx.authStatus, ctx.user]);
+  const { authStatus } = useAuthenticator((ctx) => [ctx.authStatus, ctx.user]);
 
   const handleSignOut = async () => {
-    await signOut();
-    // THE FIX: Forces a hard browser refresh to wipe Amplify's stale global state!
-    window.location.href = '/'; 
+    await amplifySignOut();
+    window.location.href = '/';
   };
   
   return (
