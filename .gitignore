@@ -53,3 +53,6 @@ dist/
 # Ignore the testing directory
 /testing/
 
+# Claude Code internal instructions
+CLAUDE.md
+
