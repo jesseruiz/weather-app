@@ -43,3 +43,14 @@
 .forecast-card.selected .forecast-day {
   color: #F9980B;
 }
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  .forecast-wrapper {
+    padding: 1rem 0.5rem;
+  }
+
+  .weekly-forecast {
+    padding: 10px;
+  }
+}

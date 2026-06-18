@@ -1,5 +1,5 @@
 import { Routes, Route, NavLink, Navigate, useNavigate } from 'react-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
 import { signOut as amplifySignOut } from 'aws-amplify/auth';
 import Home from './Home';
@@ -70,28 +70,50 @@ function LoginPage() {
 function App() {
 
   const { authStatus } = useAuthenticator((ctx) => [ctx.authStatus, ctx.user]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await amplifySignOut();
     window.location.href = '/';
   };
-  
+
+  const closeMenu = () => setMenuOpen(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleOutside(e) {
+      if (!e.target.closest('nav')) setMenuOpen(false);
+    }
+    document.addEventListener('click', handleOutside);
+    return () => document.removeEventListener('click', handleOutside);
+  }, [menuOpen]);
+
   return (
     <div className="app">
       <nav>
-        <ul>
-          <li className='logo'><NavLink to="/">Rain for Thee</NavLink></li>
-          <li><NavLink to="/">Home</NavLink></li>
-          {authStatus === 'authenticated' ? (
-            <>
-              <li><NavLink to="/MyForecast">My Forecast</NavLink></li>
-              <li><NavLink to="/Dashboard">Account</NavLink></li>
-              <li><button onClick={handleSignOut}>Sign Out</button></li>
-            </>
-          ) : (
-            <li><NavLink to="/login">Login</NavLink></li>
-          )}
-        </ul>
+        <div className="nav-bar">
+          <NavLink to="/" className="nav-logo" onClick={closeMenu}>Rain for Thee</NavLink>
+          <button
+            className="hamburger"
+            onClick={() => setMenuOpen(m => !m)}
+            aria-label="Toggle navigation"
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? '✕' : '☰'}
+          </button>
+          <ul className={`nav-links${menuOpen ? ' open' : ''}`}>
+            <li><NavLink to="/" onClick={closeMenu}>Home</NavLink></li>
+            {authStatus === 'authenticated' ? (
+              <>
+                <li><NavLink to="/MyForecast" onClick={closeMenu}>My Forecast</NavLink></li>
+                <li><NavLink to="/Dashboard" onClick={closeMenu}>Account</NavLink></li>
+                <li><button onClick={handleSignOut}>Sign Out</button></li>
+              </>
+            ) : (
+              <li><NavLink to="/login" onClick={closeMenu}>Login</NavLink></li>
+            )}
+          </ul>
+        </div>
       </nav>
 
       <main>
