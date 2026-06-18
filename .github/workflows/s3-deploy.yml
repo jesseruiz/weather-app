@@ -1,7 +1,4 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
-name: Deploy to s3
+name: Deploy to S3
 
 on:
   push:
@@ -13,25 +10,27 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Use Node.js 22
       uses: actions/setup-node@v4
       with:
         node-version: 22
 
-        
     - name: Install dependencies
       working-directory: html
-      run: npm ci   
+      run: npm ci
 
     - name: Build project
       working-directory: html
-      run: npm run build --if-present
-
+      env:
+        VITE_USER_POOL_ID: ${{ secrets.VITE_USER_POOL_ID }}
+        VITE_USER_POOL_CLIENT_ID: ${{ secrets.VITE_USER_POOL_CLIENT_ID }}
+        VITE_API_BASE: ${{ secrets.VITE_API_BASE }}
+      run: npm run build
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -40,10 +39,7 @@ jobs:
         aws-region: us-east-1
 
     - name: Sync build folder to S3
-      run: |
-        aws s3 sync html/dist/ s3://weatheralertsapp --delete
+      run: aws s3 sync html/dist/ s3://${{ secrets.S3_BUCKET }} --delete
 
-    - name: Invalidate CloudFront Cache
+    - name: Invalidate CloudFront cache
       run: aws cloudfront create-invalidation --distribution-id ${{ vars.AWS_CF_DISTRO }} --paths "/*"
-
-    
