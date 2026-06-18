@@ -1,5 +1,4 @@
 import boto3
-import json
 import requests
 from botocore.exceptions import ClientError
 from geopy.geocoders import Nominatim
@@ -16,9 +15,6 @@ def filter_forecast_periods(all_periods):
     ]
 
 def lambda_handler(event, context):
-    print("Post Confirmation Event:")
-    print(json.dumps(event, indent=2))
-
     user_attributes = event['request']['userAttributes']
 
     user_id = user_attributes.get('sub')  
@@ -32,7 +28,7 @@ def lambda_handler(event, context):
     # 1. CREATE USER PROFILE IN DATABASE
     # ==========================================
     try:
-        put_response = user_table.put_item(
+        user_table.put_item(
             Item={
                 'id': user_id,
                 'email': email,
@@ -43,7 +39,6 @@ def lambda_handler(event, context):
                 'alertFrequency': 'Any Change'
             },
         )
-        print("PutItem response:", put_response)
     except ClientError as e:
         print("Failed to save user:", e.response['Error']['Message'])
         raise
@@ -82,7 +77,7 @@ def lambda_handler(event, context):
                 all_periods = forecast_res.json()["properties"]["periods"]
 
                 weekly_forecast = []
-                for day in filter_forecast_periods(all_periods)[:8]:
+                for day in filter_forecast_periods(all_periods)[:7]:
                     rain_prob = day.get('probabilityOfPrecipitation', {}).get('value')
                     weekly_forecast.append({
                         "name": day.get("name", "Unknown"), 
