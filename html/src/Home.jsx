@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { API_BASE } from './api';
 import './Home.css';
 
@@ -6,6 +7,22 @@ const ALERT_LABELS = {
   heat: 'Heat Alert',
   rain: 'Rain Alert',
   wind: 'Wind Alert',
+};
+
+const CONDITIONS = [
+  { key: 'hotter',  label: 'Hotter than forecast', emoji: '🌡️' },
+  { key: 'colder',  label: 'Colder than forecast',  emoji: '🥶' },
+  { key: 'raining', label: 'Raining',               emoji: '🌧️' },
+  { key: 'windy',   label: 'Windier than forecast',  emoji: '💨' },
+  { key: 'fine',    label: 'Looks fine',             emoji: '☀️' },
+];
+
+const CROWDSOURCE_LABELS = {
+  hotter:  'hotter than forecast',
+  colder:  'colder than forecast',
+  raining: 'raining',
+  windy:   'windier than forecast',
+  fine:    'looking fine',
 };
 
 function parseAlertDays(alerts) {
@@ -26,9 +43,13 @@ export default function Home() {
   const [resultCity, setResultCity] = useState("");
   const [alerts, setAlerts] = useState([]);
   const [forecast, setForecast] = useState([]);
+  const [crowdsource, setCrowdsource] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [reportPicking, setReportPicking] = useState(false);
+  const [reportSubmitted, setReportSubmitted] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
 
   async function getWeather() {
     if (!city) {
@@ -39,7 +60,10 @@ export default function Home() {
     setErrorMsg("");
     setAlerts([]);
     setForecast([]);
+    setCrowdsource(null);
     setHasSearched(false);
+    setReportPicking(false);
+    setReportSubmitted(false);
     setLoading(true);
 
     try {
@@ -57,12 +81,43 @@ export default function Home() {
       setAlerts(data.alerts || []);
       setForecast(data.forecast || []);
       setResultCity(data.city || city);
+      setCrowdsource(data.crowdsource || null);
       setHasSearched(true);
 
     } catch (error) {
       setErrorMsg("Error fetching weather: " + error.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function submitReport(condition) {
+    setReportLoading(true);
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const headers = { 'Content-Type': 'application/json' };
+
+      try {
+        const session = await fetchAuthSession();
+        const token = session.tokens?.idToken?.toString();
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+      } catch (_) {
+        // Not logged in — submit anonymously
+      }
+
+      await fetch(`${API_BASE}/report`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ city: resultCity, condition, date: today })
+      });
+
+      setReportSubmitted(true);
+      setReportPicking(false);
+    } catch (err) {
+      console.error('Failed to submit report:', err);
+      setReportPicking(false);
+    } finally {
+      setReportLoading(false);
     }
   }
 
@@ -96,8 +151,14 @@ export default function Home() {
               <div className="forecast-grid">
                 {forecast.map((day, index) => {
                   const alertType = alertDays[day.name];
+                  const isToday = index === 0;
                   return (
                     <div key={index} className={`forecast-card ${alertType ? `has-alert-${alertType}` : ''}`}>
+                      {isToday && crowdsource && (
+                        <span className="crowdsource-badge">
+                          🏘️ Locals say: {CROWDSOURCE_LABELS[crowdsource.condition]}
+                        </span>
+                      )}
                       {alertType && (
                         <span className={`alert-badge alert-badge-${alertType}`}>
                           {ALERT_LABELS[alertType]}
@@ -110,6 +171,33 @@ export default function Home() {
                         <span className="rain">💧 {day.rainProbability}%</span>
                         <span className="wind">💨 {day.windSpeed}</span>
                       </div>
+                      {isToday && (
+                        <div className="report-section">
+                          {reportSubmitted ? (
+                            <p className="report-thanks">Thanks for the report!</p>
+                          ) : reportPicking ? (
+                            <div className="report-picker">
+                              {CONDITIONS.map(c => (
+                                <button
+                                  key={c.key}
+                                  className="report-option"
+                                  onClick={() => submitReport(c.key)}
+                                  disabled={reportLoading}
+                                >
+                                  {c.emoji} {c.label}
+                                </button>
+                              ))}
+                              <button className="report-cancel" onClick={() => setReportPicking(false)}>
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <button className="report-trigger" onClick={() => setReportPicking(true)}>
+                              Not for me
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}

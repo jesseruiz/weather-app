@@ -177,6 +177,95 @@
 }
 
 /* ===============================
+   CROWDSOURCE BADGE
+=============================== */
+.crowdsource-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-bottom: 7px;
+  background: #ede7f6;
+  color: #4527a0;
+}
+
+/* ===============================
+   REPORT ("NOT FOR ME")
+=============================== */
+.report-section {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.report-trigger {
+  font-size: 0.72rem;
+  color: #aaa;
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.report-trigger:hover {
+  color: #555;
+  border-color: #aaa;
+}
+
+.report-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.report-option {
+  font-size: 0.8rem;
+  text-align: left;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.report-option:hover:not(:disabled) {
+  background: #F9980B;
+  color: white;
+  border-color: #F9980B;
+}
+
+.report-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.report-cancel {
+  font-size: 0.72rem;
+  color: #bbb;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 2px 0;
+  text-align: left;
+}
+
+.report-cancel:hover {
+  color: #888;
+}
+
+.report-thanks {
+  font-size: 0.8rem;
+  color: #4caf50;
+  margin: 0;
+}
+
+/* ===============================
    MOBILE
 =============================== */
 @media (max-width: 480px) {
