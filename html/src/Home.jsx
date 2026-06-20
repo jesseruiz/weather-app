@@ -175,26 +175,27 @@ export default function Home() {
                         <div className="report-section">
                           {reportSubmitted ? (
                             <p className="report-thanks">Thanks for the report!</p>
-                          ) : reportPicking ? (
-                            <div className="report-picker">
-                              {CONDITIONS.map(c => (
-                                <button
-                                  key={c.key}
-                                  className="report-option"
-                                  onClick={() => submitReport(c.key)}
-                                  disabled={reportLoading}
-                                >
-                                  {c.emoji} {c.label}
-                                </button>
-                              ))}
-                              <button className="report-cancel" onClick={() => setReportPicking(false)}>
-                                Cancel
-                              </button>
-                            </div>
                           ) : (
-                            <button className="report-trigger" onClick={() => setReportPicking(true)}>
-                              Not for me
-                            </button>
+                            <>
+                              <button
+                                className="report-trigger"
+                                onClick={() => setReportPicking(p => !p)}
+                              >
+                                {reportPicking ? 'Close ✕' : 'Not for me'}
+                              </button>
+                              <div className={`report-picker${reportPicking ? ' open' : ''}`}>
+                                {CONDITIONS.map(c => (
+                                  <button
+                                    key={c.key}
+                                    className="report-option"
+                                    onClick={() => submitReport(c.key)}
+                                    disabled={reportLoading}
+                                  >
+                                    {c.emoji} {c.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </>
                           )}
                         </div>
                       )}
