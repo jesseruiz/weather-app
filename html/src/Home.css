@@ -189,25 +189,37 @@
 }
 
 .report-trigger {
-  font-size: 0.72rem;
-  color: #aaa;
-  background: transparent;
-  border: 1px solid #e0e0e0;
+  font-size: 0.75rem;
+  color: #555;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 3px 10px;
+  padding: 4px 12px;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  width: 100%;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .report-trigger:hover {
-  color: #555;
-  border-color: #aaa;
+  background: #e4e4e4;
+  color: #222;
+  border-color: #999;
 }
 
 .report-picker {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.25s ease, padding-top 0.3s ease;
+}
+
+.report-picker.open {
+  max-height: 280px;
+  opacity: 1;
+  padding-top: 8px;
 }
 
 .report-option {
@@ -233,20 +245,6 @@
   cursor: not-allowed;
 }
 
-.report-cancel {
-  font-size: 0.72rem;
-  color: #bbb;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-  padding: 2px 0;
-  text-align: left;
-}
-
-.report-cancel:hover {
-  color: #888;
-}
 
 .report-thanks {
   font-size: 0.8rem;
