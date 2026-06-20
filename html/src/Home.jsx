@@ -181,7 +181,7 @@ export default function Home() {
                                 className="report-trigger"
                                 onClick={() => setReportPicking(p => !p)}
                               >
-                                {reportPicking ? 'Close ✕' : 'Not for me'}
+                                {reportPicking ? 'Close ✕' : 'But not for me!'}
                               </button>
                               <div className={`report-picker${reportPicking ? ' open' : ''}`}>
                                 {CONDITIONS.map(c => (
