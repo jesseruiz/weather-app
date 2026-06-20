@@ -50,6 +50,7 @@ export default function Home() {
   const [reportPicking, setReportPicking] = useState(false);
   const [reportSubmitted, setReportSubmitted] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
+  const [expandedCard, setExpandedCard] = useState(null);
 
   async function getWeather() {
     if (!city) {
@@ -64,6 +65,7 @@ export default function Home() {
     setHasSearched(false);
     setReportPicking(false);
     setReportSubmitted(false);
+    setExpandedCard(null);
     setLoading(true);
 
     try {
@@ -153,7 +155,11 @@ export default function Home() {
                   const alertType = alertDays[day.name];
                   const isToday = index === 0;
                   return (
-                    <div key={index} className={`forecast-card ${alertType ? `has-alert-${alertType}` : ''}`}>
+                    <div
+                      key={index}
+                      className={`forecast-card ${alertType ? `has-alert-${alertType}` : ''} ${expandedCard === index ? 'expanded' : ''}`}
+                      onClick={() => setExpandedCard(expandedCard === index ? null : index)}
+                    >
                       {isToday && crowdsource && (
                         <span className="crowdsource-badge">
                           🏘️ Locals say: {CROWDSOURCE_LABELS[crowdsource.condition]}
@@ -172,7 +178,7 @@ export default function Home() {
                         <span className="wind">💨 {day.windSpeed}</span>
                       </div>
                       {isToday && (
-                        <div className="report-section">
+                        <div className="report-section" onClick={e => e.stopPropagation()}>
                           {reportSubmitted ? (
                             <p className="report-thanks">Thanks for the report!</p>
                           ) : (
