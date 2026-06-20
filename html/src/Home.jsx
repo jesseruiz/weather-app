@@ -50,7 +50,7 @@ export default function Home() {
   const [reportPicking, setReportPicking] = useState(false);
   const [reportSubmitted, setReportSubmitted] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
-  const [expandedCard, setExpandedCard] = useState(null);
+  const [expandedCard, setExpandedCard] = useState(0);
 
   async function getWeather() {
     if (!city) {
@@ -65,7 +65,7 @@ export default function Home() {
     setHasSearched(false);
     setReportPicking(false);
     setReportSubmitted(false);
-    setExpandedCard(null);
+    setExpandedCard(0);
     setLoading(true);
 
     try {

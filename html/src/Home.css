@@ -164,6 +164,8 @@
   margin: 0 0 15px 0;
   color: #555;
   line-height: 1.3;
+  flex-grow: 1;
+  overflow: hidden;
 }
 
 .forecast-stats {
@@ -171,6 +173,7 @@
   flex-direction: column;
   gap: 5px;
   font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
 .forecast-stats .temp {
