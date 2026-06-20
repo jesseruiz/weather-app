@@ -9,6 +9,7 @@ from decimal import Decimal
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('weather-app-cities')
+crowdsource_table = dynamodb.Table('weather-app-crowdsource')
 
 WIND_ALERT_THRESHOLD = int(os.environ.get('WIND_ALERT_THRESHOLD', '25'))
 RAIN_ALERT_THRESHOLD = int(os.environ.get('RAIN_ALERT_THRESHOLD', '50'))
@@ -42,9 +43,32 @@ def getHeat(day):
         alerts.append(f"Heat warning on {day['name']}. {temperature}F Stay cool!")
     return alerts
 
+CROWDSOURCE_MIN_WEIGHT = 3.0  # minimum total weighted votes before showing crowdsource data
+
 def decimal_default(obj):
     if isinstance(obj, Decimal): return float(obj)
     raise TypeError
+
+def get_crowdsource(city):
+    """Return top crowdsourced condition for today if enough reports exist, else None."""
+    try:
+        today = datetime.utcnow().strftime('%Y-%m-%d')
+        item = crowdsource_table.get_item(Key={'city': city, 'date': today}).get('Item')
+        if not item:
+            return None
+
+        conditions = ['hotter', 'colder', 'raining', 'windy', 'fine']
+        totals = {c: float(item.get(c, 0)) for c in conditions if float(item.get(c, 0)) > 0}
+        total_weight = sum(totals.values())
+
+        if total_weight < CROWDSOURCE_MIN_WEIGHT:
+            return None
+
+        top_condition = max(totals, key=lambda c: totals[c])
+        return {'condition': top_condition, 'totalWeight': round(total_weight, 2)}
+    except Exception as e:
+        print(f"Failed to fetch crowdsource data: {e}")
+        return None
 
 def lambda_handler(event, context):
     query_params = event.get("queryStringParameters") or {}
@@ -81,7 +105,8 @@ def lambda_handler(event, context):
                 "body": json.dumps({
                     "city": normalized_city,
                     "alerts": alerts,
-                    "forecast": weekly_forecast
+                    "forecast": weekly_forecast,
+                    "crowdsource": get_crowdsource(normalized_city)
                 }, default=decimal_default)
             }
     except Exception as e:
@@ -147,7 +172,8 @@ def lambda_handler(event, context):
             "body": json.dumps({
                 "city": normalized_city,
                 "alerts": alerts,
-                "forecast": weekly_forecast
+                "forecast": weekly_forecast,
+                "crowdsource": get_crowdsource(normalized_city)
             })
         }
 
