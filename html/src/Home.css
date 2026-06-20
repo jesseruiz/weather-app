@@ -150,7 +150,10 @@
   margin: 0 0 15px 0;
   color: #555;
   line-height: 1.3;
-  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .forecast-stats {
