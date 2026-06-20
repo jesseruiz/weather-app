@@ -3,10 +3,10 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 import { API_BASE } from './api';
 import './Home.css';
 
-const ALERT_LABELS = {
-  heat: 'Heat Alert',
-  rain: 'Rain Alert',
-  wind: 'Wind Alert',
+const ALERT_BANNERS = {
+  heat: '🌡️ Heat Warning for Thee',
+  rain: '🌧️ Rain Likely for Thee',
+  wind: '💨 High Winds for Thee',
 };
 
 const CONDITIONS = [
@@ -160,9 +160,9 @@ export default function Home() {
                         </span>
                       )}
                       {alertType && (
-                        <span className={`alert-badge alert-badge-${alertType}`}>
-                          {ALERT_LABELS[alertType]}
-                        </span>
+                        <div className={`alert-banner alert-banner-${alertType}`}>
+                          {ALERT_BANNERS[alertType]}
+                        </div>
                       )}
                       <h3 className="forecast-day">{day.name}</h3>
                       <p className="forecast-desc">{day.shortForecast}</p>

@@ -76,44 +76,31 @@
 }
 
 /* ===============================
-   ALERT BADGES (on forecast cards)
+   ALERT BANNER (top of alerted cards)
 =============================== */
-.alert-badge {
-  display: inline-block;
-  font-size: 0.68rem;
+.alert-banner {
+  margin: -15px -15px 12px -15px;
+  padding: 6px 12px;
+  border-radius: 11px 11px 0 0;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 10px;
-  margin-bottom: 7px;
+  text-align: center;
+  letter-spacing: 0.02em;
 }
 
-.alert-badge-heat {
+.alert-banner-heat {
   background: #fff3e0;
   color: #bf360c;
 }
 
-.alert-badge-rain {
+.alert-banner-rain {
   background: #e3f2fd;
   color: #0d47a1;
 }
 
-.alert-badge-wind {
+.alert-banner-wind {
   background: #e0f7fa;
   color: #006064;
-}
-
-.forecast-card.has-alert-heat {
-  border-top: 3px solid #f4511e;
-}
-
-.forecast-card.has-alert-rain {
-  border-top: 3px solid #1e88e5;
-}
-
-.forecast-card.has-alert-wind {
-  border-top: 3px solid #00acc1;
 }
 
 /* ===============================
@@ -145,6 +132,8 @@
   display: flex;
   flex-direction: column;
   color: #333;
+  position: relative;
+  overflow: hidden;
 }
 
 .forecast-day {
