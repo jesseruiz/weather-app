@@ -50,7 +50,15 @@ export default function Home() {
   const [reportPicking, setReportPicking] = useState(false);
   const [reportSubmitted, setReportSubmitted] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
-  const [expandedCard, setExpandedCard] = useState(0);
+  const [expandedCards, setExpandedCards] = useState(new Set([0]));
+
+  const toggleCard = (index) => {
+    setExpandedCards(prev => {
+      const next = new Set(prev);
+      next.has(index) ? next.delete(index) : next.add(index);
+      return next;
+    });
+  };
 
   async function getWeather() {
     if (!city) {
@@ -65,7 +73,7 @@ export default function Home() {
     setHasSearched(false);
     setReportPicking(false);
     setReportSubmitted(false);
-    setExpandedCard(0);
+    setExpandedCards(new Set([0]));
     setLoading(true);
 
     try {
@@ -157,8 +165,8 @@ export default function Home() {
                   return (
                     <div
                       key={index}
-                      className={`forecast-card ${alertType ? `has-alert-${alertType}` : ''} ${expandedCard === index ? 'expanded' : ''}`}
-                      onClick={() => setExpandedCard(expandedCard === index ? null : index)}
+                      className={`forecast-card ${alertType ? `has-alert-${alertType}` : ''} ${expandedCards.has(index) ? 'expanded' : ''}`}
+                      onClick={() => toggleCard(index)}
                     >
                       {isToday && crowdsource && (
                         <span className="crowdsource-badge">
