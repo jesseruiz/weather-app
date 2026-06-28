@@ -10,6 +10,7 @@ import ManageAlerts from './ManageAlerts';
 import './amplify-configure';
 import './App.css';
 import MyForecastWrapper from './MyForecastWrapper';
+import Trivia from './Trivia';
 
 const formFields = {
   signUp: {
@@ -106,6 +107,7 @@ function App() {
             {authStatus === 'authenticated' ? (
               <>
                 <li><NavLink to="/MyForecast" onClick={closeMenu}>My Forecast</NavLink></li>
+                <li><NavLink to="/Trivia" onClick={closeMenu}>Trivia</NavLink></li>
                 <li><NavLink to="/Dashboard" onClick={closeMenu}>Account</NavLink></li>
                 <li><button onClick={handleSignOut}>Sign Out</button></li>
               </>
@@ -138,6 +140,11 @@ function App() {
           <Route path="/MyForecast" element={
             <ProtectedRoute>
               <MyForecastWrapper />
+            </ProtectedRoute>
+          } />
+          <Route path="/Trivia" element={
+            <ProtectedRoute>
+              <Trivia />
             </ProtectedRoute>
           } />
 
