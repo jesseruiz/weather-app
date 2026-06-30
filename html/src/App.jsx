@@ -1,4 +1,4 @@
-import { Routes, Route, NavLink, Navigate, useNavigate } from 'react-router';
+import { Routes, Route, NavLink, Navigate, useNavigate, useLocation } from 'react-router';
 import { useEffect, useState } from 'react';
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react';
 import { signOut as amplifySignOut } from 'aws-amplify/auth';
@@ -68,10 +68,25 @@ function LoginPage() {
   );
 }
 
-function App() {
+const PAGE_TITLES = {
+  '/':               'Home | Rain for Thee',
+  '/Trivia':         'Daily Trivia | Rain for Thee',
+  '/MyForecast':     'My Forecast | Rain for Thee',
+  '/Dashboard':      'Account | Rain for Thee',
+  '/Manage-Alerts':  'Manage Alerts | Rain for Thee',
+  '/Update-Password':'Update Password | Rain for Thee',
+  '/Contact':        'Contact | Rain for Thee',
+  '/login':          'Sign In | Rain for Thee',
+};
 
+function App() {
   const { authStatus } = useAuthenticator((ctx) => [ctx.authStatus, ctx.user]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    document.title = PAGE_TITLES[location.pathname] || 'Rain for Thee';
+  }, [location.pathname]);
 
   const handleSignOut = async () => {
     await amplifySignOut();
@@ -91,6 +106,7 @@ function App() {
 
   return (
     <div className="app">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       <nav>
         <div className="nav-bar">
           <NavLink to="/" className="nav-logo" onClick={closeMenu}>Rain for Thee</NavLink>
@@ -118,7 +134,7 @@ function App() {
         </div>
       </nav>
 
-      <main>
+      <main id="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/Contact" element={<Contact />} />
