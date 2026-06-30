@@ -150,7 +150,7 @@ nav a:hover {
 }
 
 .login-branding p {
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.95rem;
   margin: 0;
 }
@@ -212,7 +212,12 @@ nav a:hover {
 [data-amplify-authenticator] .amplify-input:focus {
   border-color: #F9980B;
   box-shadow: 0 0 0 2px rgba(249, 152, 11, 0.2);
-  outline: none;
+  outline: none; /* box-shadow serves as focus indicator; global :focus-visible adds outline for keyboard */
+}
+
+[data-amplify-authenticator] .amplify-input:focus-visible {
+  outline: 2px solid #F9980B;
+  outline-offset: 0;
 }
 
 [data-amplify-authenticator] .amplify-field {
@@ -248,7 +253,7 @@ nav a:hover {
 
 [data-amplify-authenticator] .amplify-button--link {
   background: transparent;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.8rem;
   margin: 0;
 }

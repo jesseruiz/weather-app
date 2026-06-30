@@ -150,7 +150,7 @@ export default function Home() {
             {loading ? 'Loading...' : 'Get Weather'}
           </button>
         </div>
-        {errorMsg && <p className="error-text">{errorMsg}</p>}
+        {errorMsg && <p className="error-text" role="alert">{errorMsg}</p>}
       </div>
 
       {hasSearched && (
@@ -167,6 +167,11 @@ export default function Home() {
                       key={index}
                       className={`forecast-card ${alertType ? `has-alert-${alertType}` : ''} ${expandedCards.has(index) ? 'expanded' : ''}`}
                       onClick={() => toggleCard(index)}
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={expandedCards.has(index)}
+                      aria-label={`${day.name} forecast, ${expandedCards.has(index) ? 'collapse' : 'expand'}`}
+                      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleCard(index)}
                     >
                       {isToday && crowdsource && (
                         <span className="crowdsource-badge">
@@ -182,8 +187,8 @@ export default function Home() {
                       <p className="forecast-desc">{day.shortForecast}</p>
                       <div className="forecast-stats">
                         <span className="temp">{day.temperature}°F</span>
-                        <span className="rain">💧 {day.rainProbability}%</span>
-                        <span className="wind">💨 {day.windSpeed}</span>
+                        <span className="rain"><span aria-hidden="true">💧</span><span className="sr-only">Rain: </span>{day.rainProbability}%</span>
+                        <span className="wind"><span aria-hidden="true">💨</span><span className="sr-only">Wind: </span>{day.windSpeed}</span>
                       </div>
                       {isToday && (
                         <div className="report-section" onClick={e => e.stopPropagation()}>

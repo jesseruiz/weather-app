@@ -16,7 +16,7 @@ export default function Dashboard() {
 
         <div className="dashboard-cards">
           <div className="dashboard-card">
-            <h3 className="dashboard-card-title">Weather Alerts</h3>
+            <h2 className="dashboard-card-title">Weather Alerts</h2>
             <p className="dashboard-card-desc">Configure email and SMS alerts for your saved city.</p>
             <button className="dashboard-btn" onClick={() => navigate('/Manage-Alerts')}>
               Manage Alerts
@@ -24,7 +24,7 @@ export default function Dashboard() {
           </div>
 
           <div className="dashboard-card">
-            <h3 className="dashboard-card-title">Password</h3>
+            <h2 className="dashboard-card-title">Password</h2>
             <p className="dashboard-card-desc">Change your account password.</p>
             <button className="dashboard-btn" onClick={() => navigate('/Update-Password')}>
               Update Password
@@ -32,7 +32,7 @@ export default function Dashboard() {
           </div>
 
           <div className="dashboard-card dashboard-card-danger">
-            <h3 className="dashboard-card-title">Delete Account</h3>
+            <h2 className="dashboard-card-title">Delete Account</h2>
             <p className="dashboard-card-desc">Permanently remove your account and all associated data.</p>
             <AccountSettings.DeleteUser onSuccess={handleSuccess} />
           </div>
