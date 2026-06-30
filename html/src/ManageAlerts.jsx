@@ -140,14 +140,15 @@ export default function ManageAlerts() {
     <div className="manage-alerts">
       <h2>Manage Weather Alerts</h2>
 
-      {status.error && <p className="status-error">{status.error}</p>}
-      {status.message && <p className="status-success">{status.message}</p>}
+      {status.error && <p className="status-error" role="alert">{status.error}</p>}
+      {status.message && <p className="status-success" role="alert">{status.message}</p>}
 
       <div className="settings-form">
 
         <div>
-          <label className="field-label">Tracked City:</label>
+          <label htmlFor="city" className="field-label">Tracked City:</label>
           <input
+            id="city"
             type="text"
             placeholder="e.g., Seattle"
             value={settings.city}
@@ -195,8 +196,9 @@ export default function ManageAlerts() {
 
             {settings.smsEnable && (
               <div className="phone-field">
-                <label className="phone-label">Phone Number:</label>
+                <label htmlFor="phone" className="phone-label">Phone Number:</label>
                 <input
+                  id="phone"
                   type="tel"
                   placeholder="+1234567890"
                   value={settings.phoneNumber}
@@ -206,8 +208,9 @@ export default function ManageAlerts() {
             )}
 
             <div>
-              <label className="frequency-label">Alert Frequency:</label>
+              <label htmlFor="frequency" className="frequency-label">Alert Frequency:</label>
               <select
+                id="frequency"
                 value={settings.alertFrequency}
                 onChange={(e) => updateSetting('alertFrequency', e.target.value)}
               >

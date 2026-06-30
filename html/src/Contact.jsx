@@ -51,6 +51,7 @@ function ContactForm() {
         <div className="contact-field">
           <label htmlFor="name">Name:</label>
           <input
+            id="name"
             type="text"
             name="name"
             value={formData.name}
@@ -62,6 +63,7 @@ function ContactForm() {
         <div className="contact-field">
           <label htmlFor="email">Email:</label>
           <input
+            id="email"
             type="email"
             name="email"
             value={formData.email}
@@ -73,6 +75,7 @@ function ContactForm() {
         <div className="contact-field">
           <label htmlFor="message">Message:</label>
           <textarea
+            id="message"
             name="message"
             value={formData.message}
             onChange={handleChange}

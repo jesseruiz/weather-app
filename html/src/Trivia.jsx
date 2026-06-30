@@ -198,7 +198,7 @@ export default function Trivia() {
   if (phase === 'already-played') return (
     <div className="trivia-page">
       <div className="trivia-card trivia-center">
-        <div className="trivia-emoji">🏆</div>
+        <div className="trivia-emoji" aria-hidden="true">🏆</div>
         <h2>You've already played today</h2>
         <p className="trivia-big-score">{priorScore} <span>pts</span></p>
         <p className="trivia-muted">
@@ -213,7 +213,7 @@ export default function Trivia() {
     return (
       <div className="trivia-page">
         <div className="trivia-card trivia-center">
-          <div className="trivia-emoji">🎉</div>
+          <div className="trivia-emoji" aria-hidden="true">🎉</div>
           <h2>That's a wrap!</h2>
           <p className="trivia-big-score">{total} <span>pts</span></p>
           <div className="trivia-breakdown">
@@ -299,7 +299,7 @@ export default function Trivia() {
           </div>
 
           {isRevealing && (
-            <div className="trivia-reveal">
+            <div className="trivia-reveal" aria-live="polite" aria-atomic="true">
               <div className={`trivia-feedback ${result?.correct && !timedOut ? 'correct' : 'wrong'}`}>
                 {timedOut
                   ? "⏰ Time's up! +0 pts"

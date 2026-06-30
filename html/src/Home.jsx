@@ -150,7 +150,7 @@ export default function Home() {
             {loading ? 'Loading...' : 'Get Weather'}
           </button>
         </div>
-        {errorMsg && <p className="error-text">{errorMsg}</p>}
+        {errorMsg && <p className="error-text" role="alert">{errorMsg}</p>}
       </div>
 
       {hasSearched && (
@@ -187,8 +187,8 @@ export default function Home() {
                       <p className="forecast-desc">{day.shortForecast}</p>
                       <div className="forecast-stats">
                         <span className="temp">{day.temperature}°F</span>
-                        <span className="rain">💧 {day.rainProbability}%</span>
-                        <span className="wind">💨 {day.windSpeed}</span>
+                        <span className="rain"><span aria-hidden="true">💧</span><span className="sr-only">Rain: </span>{day.rainProbability}%</span>
+                        <span className="wind"><span aria-hidden="true">💨</span><span className="sr-only">Wind: </span>{day.windSpeed}</span>
                       </div>
                       {isToday && (
                         <div className="report-section" onClick={e => e.stopPropagation()}>
