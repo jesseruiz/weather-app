@@ -4,6 +4,27 @@
   padding: 2rem 1rem 4rem;
 }
 
+.trivia-guest-banner {
+  background: rgba(249, 152, 11, 0.08);
+  border: 1px solid rgba(249, 152, 11, 0.2);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  color: #bbb;
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+.trivia-guest-banner a {
+  color: #F9980B;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.trivia-guest-banner a:hover {
+  text-decoration: underline;
+}
+
 /* Top bar */
 .trivia-topbar {
   display: flex;
@@ -110,7 +131,7 @@
 
 .trivia-timer-text {
   font-size: 0.85rem;
-  color: #666;
+  color: #999;
   font-variant-numeric: tabular-nums;
 }
 
@@ -181,7 +202,7 @@
   background: #333;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #999;
+  color: #bbb;
 }
 
 .trivia-choice.correct .trivia-label {
@@ -223,7 +244,7 @@
 
 .trivia-explanation {
   font-size: 0.88rem;
-  color: #999;
+  color: #bbb;
   line-height: 1.6;
   margin: 0;
 }
@@ -265,11 +286,11 @@
 .trivia-big-score span {
   font-size: 1rem;
   font-weight: 500;
-  color: #666;
+  color: #999;
 }
 
 .trivia-muted {
-  color: #666;
+  color: #999;
   font-size: 0.88rem;
   line-height: 1.6;
   margin: 0;
@@ -299,7 +320,7 @@
 
 .trivia-breakdown-row.miss {
   background: rgba(255, 255, 255, 0.04);
-  color: #555;
+  color: #888;
 }
 
 /* Spinner */

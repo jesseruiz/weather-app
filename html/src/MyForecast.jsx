@@ -18,6 +18,10 @@ export default function MyForecast({ forecast }) {
             key={item.name}
             className={`forecast-card ${selectedDay === item.name ? 'selected' : ''}`}
             onClick={() => setSelectedDay(item.name)}
+            role="button"
+            tabIndex={0}
+            aria-pressed={selectedDay === item.name}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setSelectedDay(item.name)}
           >
             <h3 className="forecast-day">{item.name}</h3>
             <p className="forecast-desc">{item.shortForecast}</p>

@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { useAuthenticator } from '@aws-amplify/ui-react';
+import { Link } from 'react-router';
 import { API_BASE } from './api';
 import './Trivia.css';
 
@@ -7,6 +9,9 @@ const TIMER_MS = 15000;
 const LABELS = ['A', 'B', 'C', 'D'];
 
 export default function Trivia() {
+  const { authStatus } = useAuthenticator(ctx => [ctx.authStatus]);
+  const isGuest = authStatus !== 'authenticated';
+
   const [phase, setPhase] = useState('loading');
   // loading | error | already-played | playing | revealing | finished
 
@@ -23,10 +28,15 @@ export default function Trivia() {
   const timeRef = useRef(TIMER_MS);
   const submittedRef = useRef(false);
   const timerRef = useRef(null);
+  const dateRef = useRef('');
 
   const q = questions[currentIndex];
 
-  useEffect(() => { loadQuestions(); }, []);
+  // Wait for Amplify to finish configuring so isGuest is accurate before loading
+  useEffect(() => {
+    if (authStatus === 'configuring') return;
+    loadQuestions();
+  }, [authStatus]);
 
   // Timer — starts fresh each time we enter 'playing' phase or change question
   useEffect(() => {
@@ -82,6 +92,18 @@ export default function Trivia() {
         setPhase('already-played');
         return;
       }
+      // Guest-only: check localStorage now that we have today's date from the server
+      if (isGuest) {
+        try {
+          const stored = JSON.parse(localStorage.getItem('trivia_played') || 'null');
+          if (stored?.date === data.date) {
+            setPriorScore(stored.score ?? 0);
+            setPhase('already-played');
+            return;
+          }
+        } catch { /* ignore malformed localStorage */ }
+      }
+      dateRef.current = data.date;
       setQuestions(data.questions);
       setCurrentIndex(0);
       setScores([]);
@@ -135,6 +157,13 @@ export default function Trivia() {
     const newScores = [...scores, result?.pointsEarned ?? 0];
     if (currentIndex + 1 >= questions.length) {
       setScores(newScores);
+      // Lock anonymous users out for the rest of the day via localStorage
+      if (isGuest) {
+        const total = newScores.reduce((a, b) => a + b, 0);
+        try {
+          localStorage.setItem('trivia_played', JSON.stringify({ date: dateRef.current, score: total }));
+        } catch { /* ignore quota errors */ }
+      }
       setPhase('finished');
     } else {
       setScores(newScores);
@@ -210,6 +239,11 @@ export default function Trivia() {
 
   return (
     <div className="trivia-page">
+      {isGuest && (
+        <div className="trivia-guest-banner">
+          <Link to="/login">Sign in</Link> to save your score and appear on the leaderboard.
+        </div>
+      )}
       <div className="trivia-topbar">
         <h1>Daily Weather Trivia</h1>
         <span className="trivia-dots">

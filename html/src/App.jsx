@@ -104,10 +104,10 @@ function App() {
           </button>
           <ul className={`nav-links${menuOpen ? ' open' : ''}`}>
             <li><NavLink to="/" onClick={closeMenu}>Home</NavLink></li>
+            <li><NavLink to="/Trivia" onClick={closeMenu}>Trivia</NavLink></li>
             {authStatus === 'authenticated' ? (
               <>
                 <li><NavLink to="/MyForecast" onClick={closeMenu}>My Forecast</NavLink></li>
-                <li><NavLink to="/Trivia" onClick={closeMenu}>Trivia</NavLink></li>
                 <li><NavLink to="/Dashboard" onClick={closeMenu}>Account</NavLink></li>
                 <li><button onClick={handleSignOut}>Sign Out</button></li>
               </>
@@ -142,11 +142,7 @@ function App() {
               <MyForecastWrapper />
             </ProtectedRoute>
           } />
-          <Route path="/Trivia" element={
-            <ProtectedRoute>
-              <Trivia />
-            </ProtectedRoute>
-          } />
+          <Route path="/Trivia" element={<Trivia />} />
 
           <Route path="/login" element={<LoginPage />} />
         </Routes>

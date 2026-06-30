@@ -167,6 +167,11 @@ export default function Home() {
                       key={index}
                       className={`forecast-card ${alertType ? `has-alert-${alertType}` : ''} ${expandedCards.has(index) ? 'expanded' : ''}`}
                       onClick={() => toggleCard(index)}
+                      role="button"
+                      tabIndex={0}
+                      aria-expanded={expandedCards.has(index)}
+                      aria-label={`${day.name} forecast, ${expandedCards.has(index) ? 'collapse' : 'expand'}`}
+                      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleCard(index)}
                     >
                       {isToday && crowdsource && (
                         <span className="crowdsource-badge">
