@@ -18,6 +18,7 @@ PACIFIC = ZoneInfo('America/Los_Angeles')
 POOL_SIZE = 25
 TOTAL_QUESTIONS = 5
 TIMER_MS = 15000
+MAX_POSSIBLE_SCORE = 751  # 5*150 theoretical max + 1 ceiling for inverted key math
 QUESTION_ID_RE = re.compile(r'^q(0[1-9]|1[0-9]|2[0-5])$')  # q01–q25
 
 CORS_HEADERS = {
@@ -60,21 +61,77 @@ def get_period_values(date_str):
     }
 
 
-def write_leaderboard(user_id, display_name, score, date_str):
+def make_period_key(period_value, leaderboard_score, completed_ts, user_id):
+    # Invert score so ascending sort returns highest scores first.
+    # Precision: 5 decimal places. Zero-pad to 8 digits (max 75,100,000).
+    inverted_int = int(round((MAX_POSSIBLE_SCORE - leaderboard_score) * 100000))
+    inverted = str(inverted_int).zfill(8)
+    # Include Unix timestamp (10 digits) so ties go to earliest finisher.
+    ts_str = str(completed_ts).zfill(10)
+    return f"{period_value}#{inverted}#{ts_str}#{user_id}"
+
+
+def write_leaderboard(user_id, display_name, total_int, leaderboard_score, date_str, completed_ts):
+    """
+    daily   — always write (one game per day, enforced upstream).
+    weekly/monthly/yearly — write only if this is the user's best single-day
+                            score for that period; delete the previous entry
+                            if we're displacing it.
+    """
     period_values = get_period_values(date_str)
     completed_at = datetime.now(PACIFIC).isoformat()
-    inverted = str(99999 - score).zfill(5)
+    lb_score_decimal = Decimal(str(round(leaderboard_score, 5)))
 
     for period, period_value in period_values.items():
-        period_key = f"{period_value}#{inverted}#{user_id}"
-        leaderboard_table.put_item(Item={
-            'period': period,
-            'periodKey': period_key,
-            'score': score,
-            'userId': user_id,
-            'displayName': display_name,
-            'completedAt': completed_at,
-        })
+        period_key = make_period_key(period_value, leaderboard_score, completed_ts, user_id)
+
+        if period == 'daily':
+            leaderboard_table.put_item(Item={
+                'period': period,
+                'periodKey': period_key,
+                'score': total_int,
+                'userId': user_id,
+                'displayName': display_name,
+                'completedAt': completed_at,
+            })
+        else:
+            # Check the user's stored best for this period
+            best_sk = f"best#{period}#{period_value}"
+            existing = scores_table.get_item(
+                Key={'userId': user_id, 'date': best_sk}
+            ).get('Item')
+
+            current_best = float(existing['leaderboardScore']) if existing else -1
+
+            if leaderboard_score > current_best:
+                # Remove the old leaderboard entry if one exists
+                if existing and existing.get('leaderboardKey'):
+                    try:
+                        leaderboard_table.delete_item(Key={
+                            'period': period,
+                            'periodKey': existing['leaderboardKey'],
+                        })
+                    except Exception as e:
+                        print(f"Failed to delete old leaderboard entry: {e}")
+
+                # Write new leaderboard entry
+                leaderboard_table.put_item(Item={
+                    'period': period,
+                    'periodKey': period_key,
+                    'score': total_int,
+                    'userId': user_id,
+                    'displayName': display_name,
+                    'completedAt': completed_at,
+                })
+
+                # Record this as the new best for this period
+                scores_table.put_item(Item={
+                    'userId': user_id,
+                    'date': best_sk,
+                    'leaderboardScore': lb_score_decimal,
+                    'leaderboardKey': period_key,
+                    'gameDate': date_str,
+                })
 
 
 def lambda_handler(event, context):
@@ -112,12 +169,10 @@ def lambda_handler(event, context):
             display_name = email.split('@')[0]
 
     if user_id:
-        # Reject if already completed today
         score_record = scores_table.get_item(Key={'userId': user_id, 'date': today}).get('Item')
         if score_record and 'totalScore' in score_record:
-            return response(403, {'error': 'You have already completed today\'s trivia.'})
+            return response(403, {'error': "You have already completed today's trivia."})
 
-        # Validate the question belongs to this user's assigned set
         assigned = get_assigned_question_ids(user_id, today)
         if question_id not in assigned:
             return response(403, {'error': 'This question was not assigned to you today.'})
@@ -154,13 +209,22 @@ def lambda_handler(event, context):
             answers = updated.get('answers', {})
 
             if len(answers) == TOTAL_QUESTIONS:
-                total_score = sum(int(a['score']) for a in answers.values())
+                total_int = sum(int(a['score']) for a in answers.values())
+
+                # Fractional tiebreaker: cumulative raw time remaining, normalized to [0,1)
+                # Makes identical integer scores essentially impossible to tie.
+                total_time_remaining = sum(int(a.get('timeRemainingMs', 0)) for a in answers.values())
+                tiebreaker = total_time_remaining / (TOTAL_QUESTIONS * TIMER_MS)
+                leaderboard_score = total_int + tiebreaker
+
+                completed_ts = int(datetime.now(PACIFIC).timestamp())
+
                 scores_table.update_item(
                     Key={'userId': user_id, 'date': today},
                     UpdateExpression='SET totalScore = :ts',
-                    ExpressionAttributeValues={':ts': total_score},
+                    ExpressionAttributeValues={':ts': total_int},
                 )
-                write_leaderboard(user_id, display_name, total_score, today)
+                write_leaderboard(user_id, display_name, total_int, leaderboard_score, today, completed_ts)
 
         except ClientError as e:
             if e.response['Error']['Code'] != 'ConditionalCheckFailedException':
