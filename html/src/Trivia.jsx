@@ -7,13 +7,14 @@ import './Trivia.css';
 
 const TIMER_MS = 15000;
 const LABELS = ['A', 'B', 'C', 'D'];
+const TROPHIES = ['🥇', '🥈', '🥉'];
 
 export default function Trivia() {
   const { authStatus } = useAuthenticator(ctx => [ctx.authStatus]);
   const isGuest = authStatus !== 'authenticated';
 
   const [phase, setPhase] = useState('loading');
-  // loading | error | already-played | playing | revealing | finished
+  // loading | error | already-played | intro | playing | revealing | finished
 
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -24,6 +25,7 @@ export default function Trivia() {
   const [timeRemaining, setTimeRemaining] = useState(TIMER_MS);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
 
   const timeRef = useRef(TIMER_MS);
   const submittedRef = useRef(false);
@@ -109,7 +111,7 @@ export default function Trivia() {
       setScores([]);
       setSelected(null);
       setResult(null);
-      setPhase('playing');
+      setPhase('intro');
     } catch {
       setError('Network error. Please check your connection and try again.');
       setPhase('error');
@@ -144,13 +146,21 @@ export default function Trivia() {
       } else if (res.ok) {
         setResult(data);
       } else {
-        setResult({ correct: false, correctAnswer: 0, explanation: '', pointsEarned: 0 });
+        setResult({ correct: false, correctAnswer: null, explanation: '', pointsEarned: 0 });
       }
     } catch {
-      setResult({ correct: false, correctAnswer: 0, explanation: 'Could not reach server.', pointsEarned: 0 });
+      setResult({ correct: false, correctAnswer: null, explanation: 'Could not reach server.', pointsEarned: 0 });
     }
     setSubmitting(false);
     setPhase('revealing');
+  }
+
+  async function fetchLeaderboard() {
+    try {
+      const res = await fetch(`${API_BASE}/trivia/leaderboard?period=daily`);
+      const data = await res.json();
+      setLeaderboard(data.leaderboard || []);
+    } catch { /* silently ignore */ }
   }
 
   function handleNext() {
@@ -165,6 +175,7 @@ export default function Trivia() {
         } catch { /* ignore quota errors */ }
       }
       setPhase('finished');
+      fetchLeaderboard();
     } else {
       setScores(newScores);
       setCurrentIndex(i => i + 1);
@@ -181,6 +192,46 @@ export default function Trivia() {
       <div className="trivia-card trivia-center">
         <div className="trivia-spinner" />
         <p className="trivia-muted">Loading today's questions…</p>
+      </div>
+    </div>
+  );
+
+  if (phase === 'intro') return (
+    <div className="trivia-page">
+      {isGuest && (
+        <div className="trivia-guest-banner">
+          <Link to="/login">Sign in</Link> to save your score and appear on the leaderboard.
+        </div>
+      )}
+      <div className="trivia-card trivia-intro">
+        <div className="trivia-intro-icon" aria-hidden="true">🌦️</div>
+        <h1 className="trivia-intro-title">Daily Weather Trivia</h1>
+        <p className="trivia-intro-sub">Test your weather knowledge. One shot per day.</p>
+        <div className="trivia-rules">
+          <div className="trivia-rule">
+            <span className="trivia-rule-label">Questions</span>
+            <span>5 per day, unique to you</span>
+          </div>
+          <div className="trivia-rule">
+            <span className="trivia-rule-label">Timer</span>
+            <span>15 seconds each</span>
+          </div>
+          <div className="trivia-rule">
+            <span className="trivia-rule-label">Scoring</span>
+            <span>100 pts correct + up to 50 speed bonus</span>
+          </div>
+          <div className="trivia-rule">
+            <span className="trivia-rule-label">Max score</span>
+            <span>750 pts</span>
+          </div>
+          <div className="trivia-rule">
+            <span className="trivia-rule-label">Resets</span>
+            <span>Midnight Pacific time</span>
+          </div>
+        </div>
+        <button className="trivia-btn trivia-start-btn" onClick={() => setPhase('playing')}>
+          Let's Play!
+        </button>
       </div>
     </div>
   );
@@ -211,22 +262,46 @@ export default function Trivia() {
   if (phase === 'finished') {
     const total = scores.reduce((a, b) => a + b, 0);
     return (
-      <div className="trivia-page">
-        <div className="trivia-card trivia-center">
-          <div className="trivia-emoji" aria-hidden="true">🎉</div>
-          <h2>That's a wrap!</h2>
-          <p className="trivia-big-score">{total} <span>pts</span></p>
-          <div className="trivia-breakdown">
-            {scores.map((s, i) => (
-              <div key={i} className={`trivia-breakdown-row ${s > 0 ? 'hit' : 'miss'}`}>
-                <span>Q{i + 1}</span>
-                <span>{s > 0 ? `+${s}` : '—'}</span>
-              </div>
-            ))}
+      <div className="trivia-page trivia-page-wide">
+        <div className="trivia-finished-grid">
+          <div className="trivia-card trivia-center">
+            <div className="trivia-emoji" aria-hidden="true">🎉</div>
+            <h2>That's a wrap!</h2>
+            <p className="trivia-big-score">{total} <span>pts</span></p>
+            <div className="trivia-breakdown">
+              {scores.map((s, i) => (
+                <div key={i} className={`trivia-breakdown-row ${s > 0 ? 'hit' : 'miss'}`}>
+                  <span>Q{i + 1}</span>
+                  <span>{s > 0 ? `+${s}` : '—'}</span>
+                </div>
+              ))}
+            </div>
+            <p className="trivia-muted">
+              New questions drop at midnight Pacific time.<br />Check back tomorrow!
+            </p>
           </div>
-          <p className="trivia-muted">
-            New questions drop at midnight Pacific time.<br />Check back tomorrow!
-          </p>
+
+          <div className="trivia-card">
+            <div className="trivia-lb-header">
+              <h2>Today's Leaderboard</h2>
+              <Link to="/Leaderboard" className="trivia-lb-link">All leaderboards →</Link>
+            </div>
+            {leaderboard.length === 0 ? (
+              <p className="trivia-muted trivia-lb-empty">Loading…</p>
+            ) : (
+              <ol className="trivia-lb-list">
+                {leaderboard.map((entry) => (
+                  <li key={entry.userId} className={`trivia-lb-row ${entry.rank <= 3 ? 'trivia-lb-top' : ''}`}>
+                    <span className="trivia-lb-rank">
+                      {entry.rank <= 3 ? <span aria-hidden="true">{TROPHIES[entry.rank - 1]}</span> : entry.rank}
+                    </span>
+                    <span className="trivia-lb-name">{entry.displayName}</span>
+                    <span className="trivia-lb-score">{entry.score}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
         </div>
       </div>
     );

@@ -111,7 +111,7 @@ export default function Home() {
         const session = await fetchAuthSession();
         const token = session.tokens?.idToken?.toString();
         if (token) headers['Authorization'] = `Bearer ${token}`;
-      } catch (_) {
+      } catch {
         // Not logged in — submit anonymously
       }
 

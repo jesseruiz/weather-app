@@ -11,6 +11,7 @@ import './amplify-configure';
 import './App.css';
 import MyForecastWrapper from './MyForecastWrapper';
 import Trivia from './Trivia';
+import Leaderboard from './Leaderboard';
 
 const formFields = {
   signUp: {
@@ -71,6 +72,7 @@ function LoginPage() {
 const PAGE_TITLES = {
   '/':               'Home | Rain for Thee',
   '/Trivia':         'Daily Trivia | Rain for Thee',
+  '/Leaderboard':    'Leaderboard | Rain for Thee',
   '/MyForecast':     'My Forecast | Rain for Thee',
   '/Dashboard':      'Account | Rain for Thee',
   '/Manage-Alerts':  'Manage Alerts | Rain for Thee',
@@ -121,6 +123,7 @@ function App() {
           <ul className={`nav-links${menuOpen ? ' open' : ''}`}>
             <li><NavLink to="/" onClick={closeMenu}>Home</NavLink></li>
             <li><NavLink to="/Trivia" onClick={closeMenu}>Trivia</NavLink></li>
+            <li><NavLink to="/Leaderboard" onClick={closeMenu}>Leaderboard</NavLink></li>
             {authStatus === 'authenticated' ? (
               <>
                 <li><NavLink to="/MyForecast" onClick={closeMenu}>My Forecast</NavLink></li>
@@ -159,6 +162,7 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/Trivia" element={<Trivia />} />
+          <Route path="/Leaderboard" element={<Leaderboard />} />
 
           <Route path="/login" element={<LoginPage />} />
         </Routes>
