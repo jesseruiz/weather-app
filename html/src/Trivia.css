@@ -479,6 +479,34 @@
   padding: 1.5rem 0;
 }
 
+/* Sign-up nudge on finished screen for guests */
+.trivia-signup-nudge {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  background: rgba(249, 152, 11, 0.08);
+  border: 1px solid rgba(249, 152, 11, 0.25);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.trivia-signup-nudge p {
+  font-size: 0.9rem;
+  color: #bbb;
+  margin: 0 0 0.75rem;
+}
+
+.trivia-signup-nudge strong {
+  color: #F9980B;
+}
+
+.trivia-signup-btn {
+  display: block;
+  width: 100%;
+  font-size: 0.9rem;
+  padding: 0.65rem 1rem;
+  text-decoration: none;
+}
+
 /* Mobile */
 @media (max-width: 480px) {
   .trivia-page {

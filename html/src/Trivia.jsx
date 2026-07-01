@@ -279,6 +279,12 @@ export default function Trivia() {
             <p className="trivia-muted">
               New questions drop at midnight Pacific time.<br />Check back tomorrow!
             </p>
+            {isGuest && (
+              <div className="trivia-signup-nudge">
+                <p>Your score of <strong>{total} pts</strong> wasn't saved.</p>
+                <Link to="/login" className="trivia-btn trivia-signup-btn">Create a free account to get on the leaderboard</Link>
+              </div>
+            )}
           </div>
 
           <div className="trivia-card">
